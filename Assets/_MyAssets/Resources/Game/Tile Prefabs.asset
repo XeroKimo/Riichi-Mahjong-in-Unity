@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aba3d904ee8734d4592906890d39a628, type: 3}
+  m_Name: Tile Prefabs
+  m_EditorClassIdentifier: 
+  honorTiles:
+  - {fileID: 3326708556307811484, guid: 767c381a24b352d4bafda4b7b5b1c6f1, type: 3}
+  - {fileID: 5054499976327823830, guid: 1b35419e4ff336f4ebbec5cdf7a2fde3, type: 3}
+  - {fileID: 7505142397111957534, guid: 3e9f144a636791943b9dd76b01c9d635, type: 3}
+  - {fileID: 1188933206857091721, guid: 76c4c03b66633c4479f60bf1e0ab4408, type: 3}
+  - {fileID: 1226428634813382485, guid: 360d07fa7743bc64bb370b790f6989a0, type: 3}
+  - {fileID: 7557353475682586222, guid: 7aa4ad2675529bc4cbfcf9774044e665, type: 3}
+  - {fileID: 8054197165177195270, guid: 837ab01e2482f1241bc4e12ef7b43852, type: 3}
+  characterTiles:
+  - {fileID: 6976357919523426280, guid: 36fe3e11146aeeb4d90e1fab52fc6f52, type: 3}
+  - {fileID: 8371453200611093941, guid: 0d3b6c61d9646c840b0c033d9734f238, type: 3}
+  - {fileID: 2403545605757300071, guid: f43ffb127c9fa6e49b84b6442ec45e70, type: 3}
+  - {fileID: 3836694968031597039, guid: 1e09fbc33d212ef4891890a67afcfe74, type: 3}
+  - {fileID: 4000674198886578817, guid: f4e54558dfce918498d29c5750eb540a, type: 3}
+  - {fileID: 8211346527158085427, guid: 8e32328a5a2cfa04183cf608b3345eb6, type: 3}
+  - {fileID: 2702527227987174996, guid: b9204d1d29ab5c14aa3973978858379b, type: 3}
+  - {fileID: 5640845048680410767, guid: 4513636647f563e41a48a1ad518708f5, type: 3}
+  - {fileID: 4634385065764476619, guid: 91267cf22687ece4d9aa8d1a129f8218, type: 3}
+  bambooTiles:
+  - {fileID: 3948813833789809043, guid: 08a3aef61fd6d7340a06475a44d10d79, type: 3}
+  - {fileID: 880922353401211038, guid: 1f8bbf1d9bc4dae49865db52574a3e51, type: 3}
+  - {fileID: 6861725305898963713, guid: 3f656c6b0dcfa63478b060834d9f9e97, type: 3}
+  - {fileID: 1679498033754175200, guid: b994740a578edb84096af860e2d49a23, type: 3}
+  - {fileID: 6858192894997804342, guid: d05a4bd60956055479b619baceb5dd89, type: 3}
+  - {fileID: 9195538446976012791, guid: b9862c4a9dfd3ea4cbec880ea4549e69, type: 3}
+  - {fileID: 8638623371069186953, guid: 4e3aa53f5913705449edd54468f4e435, type: 3}
+  - {fileID: 5554399707393768117, guid: 66ef644ac630ecf4a909c1d83abe65c5, type: 3}
+  - {fileID: 293736828519453530, guid: d50a3675e7a6b9f4b9d651128ad94779, type: 3}
+  circleTiles:
+  - {fileID: 3415897333694480723, guid: 3278479c1f89c9e48ad49a9363b234ae, type: 3}
+  - {fileID: 6898112993391532437, guid: 38405575cf127e348857ed1186e73bc1, type: 3}
+  - {fileID: 4334497726257897987, guid: 30b5e8a619c7b0440b68a7fad4c874cc, type: 3}
+  - {fileID: 5690592443952768218, guid: 66527b3e2890ca144ab2f827c58bbce8, type: 3}
+  - {fileID: 1317618782955614388, guid: f9ab401ca769c364283bd19fb0b33444, type: 3}
+  - {fileID: 5854661498046319790, guid: ea7ab7d0ce809ad4994a88eec293431f, type: 3}
+  - {fileID: 93267044223243200, guid: e467de1cd4a36d941bbd7d9a26e69c22, type: 3}
+  - {fileID: 3410913187426283291, guid: c1f814620ebf845469de3e40c3fafa67, type: 3}
+  - {fileID: 5615576239412822726, guid: 0981af23dca17824183530e7c6aaa9ef, type: 3}
