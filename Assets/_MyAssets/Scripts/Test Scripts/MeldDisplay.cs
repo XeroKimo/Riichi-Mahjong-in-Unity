@@ -15,7 +15,5 @@ public class MeldDisplay : MonoBehaviour
     public void SetTiles(List<TileDisplay> tiles, TileDisplay inputTile)
     {
         this.tiles = tiles;
-
-        
     }
 }

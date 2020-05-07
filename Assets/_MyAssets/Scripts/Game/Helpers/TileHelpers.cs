@@ -70,14 +70,16 @@ public class TileHelpers
 
         for (int i = 0; i < (int)Tile.Suit.Count; i++)
         {
-            sortedSuits[(Tile.Suit)i] = TileHelpers.SortSequence((sortedSuits[(Tile.Suit)i]));
+            if(sortedSuits.ContainsKey((Tile.Suit)i))
+                sortedSuits[(Tile.Suit)i] = TileHelpers.SortSequence((sortedSuits[(Tile.Suit)i]));
         }
 
         sortedTiles = sortedSuits[order[0]];
 
         for (int i = 1; i < order.Count; i++)
         {
-            sortedTiles.AddRange(sortedSuits[order[i]]);
+            if(sortedSuits.ContainsKey(order[i]))
+                sortedTiles.AddRange(sortedSuits[order[i]]);
         }
 
         return sortedTiles;
@@ -142,7 +144,7 @@ public class TileHelpers
         int count = 1;
         for (int i = input.rawValue - 2; i <= input.rawValue + 2; i++, count++)
         {
-            if (tiles[i].Count == 0)
+            if (!tiles.ContainsKey(i))
                 count = 0;
             if (count == 3)
             {

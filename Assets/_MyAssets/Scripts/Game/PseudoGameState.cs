@@ -4,24 +4,32 @@ using UnityEngine;
 
 public class PseudoGameState : MonoBehaviour, IGameLogicCallbacks
 {
-    List<Player> m_players;
+    public List<Player> m_players;
     public List<PlayerDisplayManager> playerDisplays;
     DiscardPile m_discardPile;
+    [SerializeField]
     Deck m_deck;
 
-    int m_currentPlayer;
-    int m_currentDealer;
-    int m_initialDealer;
+    int m_currentPlayerIndex;
+    int m_currentDealerIndex;
+    int m_initialDealerIndex;
 
     Tile.Face m_currentWind;
 
     int m_hasHandCallsAvailable;
 
-    public void Awake()
+    Tile m_lastDiscardedTile = null;
+
+    void Awake()
     {
         m_discardPile = new DiscardPile();
         m_deck = new Deck();
         m_hasHandCallsAvailable = 0;
+    }
+
+    void Start()
+    {
+        StartGame();
     }
 
     public void StartGame()
@@ -34,8 +42,8 @@ public class PseudoGameState : MonoBehaviour, IGameLogicCallbacks
         }
 
         RandomizePlayers();
-        SelectDealer();
-        StartNextRound(m_initialDealer);
+        SelectInitialDealer();
+        StartNextRound(m_initialDealerIndex);
     }
 
     void RandomizePlayers()
@@ -48,32 +56,35 @@ public class PseudoGameState : MonoBehaviour, IGameLogicCallbacks
 
     public void StartNextTurn()
     {
-        m_currentPlayer = (m_currentPlayer + 1) % 4;
-        m_players[m_currentPlayer].AddTileToHand(m_deck.DrawTile());
+        m_currentPlayerIndex = (m_currentPlayerIndex + 1) % 4;
+        if(!m_deck.Empty())
+        {
+            Tile drawnTile = m_deck.DrawTile();
+            m_players[m_currentPlayerIndex].AddTileToHand(drawnTile);
+            playerDisplays[m_currentPlayerIndex].OnTileAdded(m_players[m_currentPlayerIndex], drawnTile);
+        }
+        else
+            StartNextRound(m_currentDealerIndex);   //TODO: add tenpai checks
     }
 
     void StartNextWind()
     {
         m_currentWind = (Tile.Face)((int)m_currentWind + 1);
-        StartNextRound(m_currentDealer);
     }
 
-    void StartNextRound(int winner)
+    void StartNextRound(int winnerIndex)
     {
-        if(winner != m_currentDealer)
-        {
-            m_currentPlayer = ++m_currentDealer;
-            if((winner + 1) % 4 == m_initialDealer)
-                StartNextWind();
-        }
+        m_lastDiscardedTile = null;
+        ChangeDealers(winnerIndex);
         ResetDeck();
         ResetHands();
+        StartNextTurn();
     }
 
     void ResetDeck()
     {
         m_deck.ShuffleDeck();
-        m_deck.BreakDeck(m_currentDealer);
+        m_deck.BreakDeck(m_currentDealerIndex);
     }
 
     void SwapPlayers(int left, int right)
@@ -83,23 +94,30 @@ public class PseudoGameState : MonoBehaviour, IGameLogicCallbacks
         m_players[right] = player;
     }
 
-    void SelectDealer()
+    void SelectInitialDealer()
     {
-        m_currentDealer = m_currentPlayer = (Random.Range(0, 12) % 4) - 1;
-        m_initialDealer = m_currentPlayer + 1;
+        m_currentDealerIndex = m_currentPlayerIndex = (Random.Range(0, 12) % 4) - 1;
+        m_initialDealerIndex = m_currentPlayerIndex + 1;
     }
 
     void ResetHands()
     {
+        foreach(var playerDisplay in playerDisplays)
+        {
+            playerDisplay.CreateHand();
+        }
         List<Tile>[] playerTiles = new List<Tile>[4];
+
+        playerTiles[0] = new List<Tile>();
+        playerTiles[1] = new List<Tile>();
+        playerTiles[2] = new List<Tile>();
+        playerTiles[3] = new List<Tile>();
+
         for(int i = 0; i < 3; i++)
         {
-            for(int j = 0; j < 4; j++)
+            for(int playerIndex = 0; playerIndex < 4; playerIndex++)
             {
-                for(int k = 0; k < 3; k++)
-                {
-                    playerTiles[j].Add(m_deck.DrawTile());
-                }
+                playerTiles[playerIndex].AddRange(m_deck.DrawMultipleTiles(4));
             }
         }
 
@@ -108,27 +126,42 @@ public class PseudoGameState : MonoBehaviour, IGameLogicCallbacks
             playerTiles[j].Add(m_deck.DrawTile());
         }
 
-        playerTiles[0].Add(m_deck.DrawTile());
-
         for(int i = 0; i < 4; i++)
         {
-            m_players[(m_currentDealer + i) % 4].ResetHand(playerTiles[i]);
+            int playerIndex = (m_currentDealerIndex + i) % 4;
+            Player player = m_players[playerIndex];
+
+            player.ResetHand(playerTiles[i]);
+            playerDisplays[playerIndex].RefreshHand(player, player.m_playerData.hand.tiles);
+        }
+    }
+
+    void ChangeDealers(int winnerIndex)
+    {
+        if(winnerIndex != m_currentDealerIndex)
+        {
+            m_currentDealerIndex = (m_currentDealerIndex + 1) % 4;
+            m_currentPlayerIndex = m_currentDealerIndex - 1;
+            if(m_currentDealerIndex == m_initialDealerIndex)
+                StartNextWind();
         }
     }
 
     public void OnTileRemoved(Player player, Tile tile)
     {
         int hasHandCallsEnabled = 0;
+        playerDisplays[m_currentPlayerIndex].OnTileRemoved(player, tile);
+        m_lastDiscardedTile = tile;
         for(int i = 0; i < 4; i++)
         {
-            if(i == (m_currentPlayer + 1) % 4)
+            if(i == (m_currentPlayerIndex + 1) % 4)
             {
                 if(m_players[i].EnableHandCalls(tile, true, false))
                 {
                     hasHandCallsEnabled++;
                 }
             }
-            else if(i != m_currentPlayer)
+            else if(i != m_currentPlayerIndex)
             {
                 if(m_players[i].EnableHandCalls(tile, false, false))
                 {
@@ -138,43 +171,85 @@ public class PseudoGameState : MonoBehaviour, IGameLogicCallbacks
         }
         m_hasHandCallsAvailable = hasHandCallsEnabled;
 
-        if(m_hasHandCallsAvailable == 0)
+        if(m_hasHandCallsAvailable < 1)
             StartNextTurn();
     }
 
-    public void OnHandCallMade(Player player, HandCalls handCall)
+    public void OnHandCallMade(Player player)
     {
         int callerIndex = m_players.FindIndex((Player other) => { return other == player; });
-        if(handCall.IsSet(HandCalls.Flag.Chi) || handCall.IsSet(HandCalls.Flag.Pon) || handCall.IsSet(HandCalls.Flag.Kan))
+        if(callerIndex != m_currentPlayerIndex)
         {
-            playerDisplays[callerIndex].TransferTileIn(playerDisplays[m_currentPlayer].ExtractLastDiscardedTile());
-            m_currentPlayer = callerIndex;
+            playerDisplays[callerIndex].TransferTileIn(playerDisplays[m_currentPlayerIndex].ExtractLastDiscardedTile());
+            m_currentPlayerIndex = callerIndex;
         }
-        else if(handCall.IsSet(HandCalls.Flag.Ron))
+    }
+
+    public bool IsCurrentPlayer(Player player)
+    {
+        return m_players.FindIndex((Player other) => { return other == player; }) == m_currentPlayerIndex;
+    }
+
+    public void OnWinningCallMade(Player player, HandCall handCall)
+    {
+        int callerIndex = m_players.FindIndex((Player other) => { return other == player; });
+        if((handCall & HandCall.Ron) == HandCall.Ron)
         {
-            m_players[m_currentPlayer].RemovePoints(0);
-            m_players[callerIndex].AddPoints(0);
+            m_players[m_currentPlayerIndex].points -= 0;
+            m_players[callerIndex].points += 0;
             StartNextRound(callerIndex);
         }
-        else if(handCall.IsSet(HandCalls.Flag.Tsumo))
+        else if((handCall & HandCall.Tsumo) == HandCall.Tsumo)
         {
             for(int i = 0; i < 4; i++)
             {
                 if(i == callerIndex)
                 {
-                    m_players[callerIndex].AddPoints(0);
+                    m_players[callerIndex].points += 0;
                 }
                 else
                 {
-                    m_players[i].RemovePoints(0);
+                    m_players[m_currentPlayerIndex].points -= 0;
                 }
             }
             StartNextRound(callerIndex);
         }
     }
 
-    public bool IsCurrentPlayer(Player player)
+    public void SkipHandCall()
     {
-        return m_players.FindIndex((Player other) => { return other == player; }) == m_currentPlayer;
+        m_hasHandCallsAvailable--;
+        if(m_hasHandCallsAvailable < 1)
+            StartNextTurn();
+    }
+
+    //Pseudo stuff
+    public void SkipHandCalls()
+    {
+        for(int i = 0; i < 4; i++)
+        {
+            m_players[i].SkipHandCall();
+        }
+    }
+    public void CallKan()
+    {
+        for(int i = 0; i < 4; i++)
+        {
+            m_players[i].CallKan();
+        }
+    }
+    public void CallPon()
+    {
+        for(int i = 0; i < 4; i++)
+        {
+            m_players[i].CallPon();
+        }
+    }
+    public void CallChi()
+    {
+        for(int i = 0; i < 4; i++)
+        {
+            m_players[i].CallChi(0);
+        }
     }
 }

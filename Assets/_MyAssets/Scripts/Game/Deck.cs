@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class Deck
 {
     const int wallHeight = 2;
@@ -38,6 +39,15 @@ public class Deck
         m_currentTile = m_currentTile % m_tiles.Count;
 
         return output;
+    }
+
+    public List<Tile> DrawMultipleTiles(int count)
+    {
+        List<Tile> amountToDraw = new List<Tile>();
+        Tile tile = DrawTile();
+        for(int i = 0; i < count; i++)
+            amountToDraw.Add(DrawTile());
+        return amountToDraw;
     }
 
     public Tile DrawDeadTile()
@@ -84,7 +94,6 @@ public class Deck
         int startingWall = normalizedDealerIndex * m_wallLength * wallHeight;
         int startingTile = (startingWall + (playerTraverse * m_wallLength * wallHeight) + wallTraverse) % m_tiles.Count;
 
-
         m_currentTile = startingTile;
         m_lastPlayableTile = startingTile - (7 * wallHeight);
         m_lastTile = startingTile - (1 * wallHeight);
@@ -97,7 +106,14 @@ public class Deck
 
     private void BuildDeck()
     {
-        for (int i = 0; i < (int)Tile.Face.Count; i++)
+        for(int j = 1; j < 4; j++)
+        {
+            for(int i = Tile.numberMin; i < (int)Tile.numberMax; i++)
+            {
+                SpawnTiles((Tile.Suit)j, i);
+            }
+        }
+        for(int i = Tile.honorMin; i < Tile.honorMax; i++)
         {
             SpawnTiles(Tile.Suit.Honor, i);
         }

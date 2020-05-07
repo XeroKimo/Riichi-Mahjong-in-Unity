@@ -1,6 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Video;
+
+public enum TileOrigin
+{
+    Self = 0,
+
+}
 
 public class PlayerDisplayManager : MonoBehaviour, IHandDisplayCallbacks
 {
@@ -8,9 +15,14 @@ public class PlayerDisplayManager : MonoBehaviour, IHandDisplayCallbacks
     public HandDisplayManager handDisplay;
     public DiscardDisplayManager discardDisplay;
 
-    public void OnHandCallMade(Player player, List<Tile> tile, HandCalls handCall)
+    void Awake()
     {
+    }
 
+    public void OnMeldMade(Player player, Meld meld, Tile input)
+    {
+        TileDisplay inputTile = handDisplay.tiles[handDisplay.tiles.Count - 1];
+        inputTile.SetOwningPlayer(player);
     }
 
     public void OnTileAdded(Player player, Tile tile)
@@ -29,19 +41,21 @@ public class PlayerDisplayManager : MonoBehaviour, IHandDisplayCallbacks
         discardDisplay.AddTile(discardedTile);
     }
 
-    public void RefreshHand(Player player, List<Tile> tile)
+    public void RefreshHand(Player player, List<Tile> tiles)
     {
-        List<TileDisplay> tiles = handDisplay.tiles;
+        List<TileDisplay> displayTiles = handDisplay.tiles;
 
-        int nullCount = tiles.Count - tile.Count;
-        for(int i = 0; i < tile.Count; i++)
+        int nullCount = displayTiles.Count - tiles.Count;
+        for(int i = 0; i < tiles.Count; i++)
         {
-            tiles[i].SetOwningPlayer(player);
-            tiles[i].SetTile(tile[i]);
+            displayTiles[i].SetOwningPlayer(player);
+            displayTiles[i].SetTile(tiles[i]);
+            if(tiles[i] == null)
+                Debug.Break();
         }
-        for(int i = tile.Count - 1; i < nullCount; i++)
+        for(int i = tiles.Count - 1; i < nullCount; i++)
         {
-            tiles[i].SetTile(null);
+            displayTiles[i].SetTile(null);
         }
     }
 
@@ -53,5 +67,16 @@ public class PlayerDisplayManager : MonoBehaviour, IHandDisplayCallbacks
     public TileDisplay ExtractLastDiscardedTile()
     {
         return discardDisplay.ExtractLastDiscardedTile();
+    }
+
+    public void CreateHand()
+    {
+        handDisplay.ClearHand();
+        discardDisplay.ClearPile();
+        for(int i = 0; i < 13; i++)
+        {
+            handDisplay.AddTile(Instantiate(tilePrefab));
+        }
+
     }
 }

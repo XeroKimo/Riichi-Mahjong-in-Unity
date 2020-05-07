@@ -373,7 +373,7 @@ public static class HandPatterns
             return 0;
     }
 
-    static public Vector2Int CalculateHandValue(int fu, int han, bool dealer, HandCalls handCall)
+    static public Vector2Int CalculateHandValue(int fu, int han, bool dealer, HandCall handCall)
     {
         int baseValue = CalculateBaseHandValue(fu, han);
 
@@ -381,12 +381,12 @@ public static class HandPatterns
 
         int dealerMultiplier = (dealer) ? 1 : 0;
 
-        if (handCall.IsSet(HandCalls.Flag.Tsumo))
+        if ((handCall & HandCall.Tsumo) == HandCall.Tsumo)
         {
             values.x = RoundToNearestHundred(baseValue * 1 + (1 * dealerMultiplier));
             values.y = RoundToNearestHundred(baseValue * 2);
         }
-        else if (handCall.IsSet(HandCalls.Flag.Ron))
+        else if((handCall & HandCall.Ron) == HandCall.Ron)
         {
             values.x = values.y = RoundToNearestHundred(baseValue * (4 + (2 * dealerMultiplier)));
         }

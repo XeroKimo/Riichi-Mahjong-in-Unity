@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class TileDisplay : MonoBehaviour, IPointerClickHandler
+public class TileDisplay : MonoBehaviour, IPointerClickHandler, ISelectHandler
 {
     public Tile tile { get; private set; }
     Player m_player;
 
     public void Awake()
     {
+        SetTile(null);
     }
 
     public void SetTile(Tile tile)
@@ -25,13 +26,13 @@ public class TileDisplay : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if(EventSystem.current.currentSelectedGameObject == this)
+        if(EventSystem.current.currentSelectedGameObject == gameObject)
         {
             RemoveTileFromHand();
         }
         else
         {
-            EventSystem.current.SetSelectedGameObject(gameObject);
+            EventSystem.current.SetSelectedGameObject(gameObject, eventData);
         }
     }
 
@@ -41,5 +42,10 @@ public class TileDisplay : MonoBehaviour, IPointerClickHandler
             return;
 
         m_player.RemoveTileFromHand(tile);
+    }
+
+    public void OnSelect(BaseEventData eventData)
+    {
+
     }
 }

@@ -80,7 +80,7 @@ public class GameState : MonoBehaviour
 
         hand = new Hand();
 
-        Debug.Log(HandPatterns.CalculateHandValue(25, 4, false, HandCalls.Tsumo));
+        Debug.Log(HandPatterns.CalculateHandValue(25, 4, false, HandCall.Tsumo));
     }
 
 

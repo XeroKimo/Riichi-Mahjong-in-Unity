@@ -6,9 +6,7 @@ using UnityEngine.EventSystems;
 
 public class HandDisplayManager : MonoBehaviour
 {
-    public MeldDisplay meldPrefab;
     public List<TileDisplay> tiles { get; private set; }
-    public Transform hand;
     public Transform meldPile;
 
     public List<MeldDisplay> melds;
@@ -16,11 +14,7 @@ public class HandDisplayManager : MonoBehaviour
     private void Awake()
     {
         tiles = new List<TileDisplay>();
-        //for(int i = 0; i < 13; i++)
-        //{
-        //    tiles.Add(Instantiate(tilePrefab, hand));
-        //    (tiles[i].transform as RectTransform).anchoredPosition = new Vector2((tilePrefab.transform as RectTransform).rect.width * i, 0);
-        //}
+        melds = new List<MeldDisplay>();
     }
 
     public void AddTile(TileDisplay tile)
@@ -31,7 +25,10 @@ public class HandDisplayManager : MonoBehaviour
         Vector2 tileSize = tileTransform.rect.size;
         float xOffset = tileSize.x * (tiles.Count - 1);
 
-        tileTransform.SetParent(hand);
+        tileTransform.SetParent(transform);
+        tileTransform.localScale = Vector3.one;
+        tileTransform.localRotation = Quaternion.identity;
+
         tileTransform.anchoredPosition = new Vector2(xOffset, 0);
     }
 
@@ -43,14 +40,23 @@ public class HandDisplayManager : MonoBehaviour
         Vector2 tileSize = tileTransform.rect.size;
         float xOffset = tileTransform.anchoredPosition.x;
 
+        tileTransform.SetParent(transform);
+        tileTransform.localScale = Vector3.one;
+        tileTransform.localRotation = Quaternion.identity;
+
         tileTransform.anchoredPosition = new Vector2(xOffset + tileSize.x / 2, 0);
     }
 
     public TileDisplay RemoveTile(Tile tile)
     {
         TileDisplay toRemoveTile = tiles.Find((TileDisplay match) => { return match.tile == tile; });
-        tiles.Remove(toRemoveTile);
-        return toRemoveTile;
+        TileDisplay lastTile = tiles[tiles.Count - 1];
+        tiles.Remove(lastTile);
+
+        toRemoveTile.SetTile(lastTile.tile);
+        lastTile.SetTile(tile);
+
+        return lastTile;
     }
 
     public void RefreshHand(List<TileDisplay> tiles)
@@ -58,19 +64,34 @@ public class HandDisplayManager : MonoBehaviour
         this.tiles = tiles; 
     }
 
-    public void OnHandCallMade(List<Tile> tiles)
+    public void DisplayMeld(Meld meld)
     {
         TileDisplay inputTile = this.tiles[this.tiles.Count - 1];
         List<TileDisplay> toMeld = new List<TileDisplay>();
-        foreach(var tile in tiles)
-        {
-            toMeld.Add(RemoveTile(tile));
-        }
+        //foreach(var tile in tiles)
+        //{
+        //    toMeld.Add(RemoveTile(tile));
+        //}
         
 
         //Spawn meld object
         //Transfer tiles into meld
         //Offset meld
 
+    }
+
+    public void ClearHand()
+    {
+        foreach(var tile in tiles)
+        {
+            Destroy(tile.gameObject);
+        }
+        tiles.Clear();
+
+        foreach(var meld in melds)
+        {
+            Destroy(meld.gameObject);
+        }
+        melds.Clear();
     }
 }

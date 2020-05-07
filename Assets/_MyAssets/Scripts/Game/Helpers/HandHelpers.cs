@@ -13,7 +13,7 @@ public static class HandHelpers
 {
     static public HandState CheckHandState(Hand hand, out List<Tile> waitingTiles)
     {
-        List<Tile> tiles = new List<Tile>(hand.GetTiles());
+        List<Tile> tiles = new List<Tile>(hand.tiles);
 
         waitingTiles = TileHelpers.GetWaitingTiles(tiles);
         if (waitingTiles.Count == 0)
@@ -113,7 +113,7 @@ public static class HandHelpers
 
     static public bool CanDeclareRiichi(Hand hand, out List<Tile> waitingTiles)
     {
-        List<Tile> tiles = new List<Tile>(hand.GetTiles());
+        List<Tile> tiles = new List<Tile>(hand.tiles);
         waitingTiles = null;
         return false;
     }
