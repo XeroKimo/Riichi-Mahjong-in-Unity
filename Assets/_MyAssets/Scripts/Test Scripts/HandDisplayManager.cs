@@ -7,8 +7,9 @@ using UnityEngine.EventSystems;
 public class HandDisplayManager : MonoBehaviour
 {
     public List<TileDisplay> tiles { get; private set; }
-    public Transform meldPile;
+    public RectTransform meldPile;
 
+    public MeldDisplay meldPrefab;
     public List<MeldDisplay> melds;
 
     private void Awake()
@@ -40,10 +41,6 @@ public class HandDisplayManager : MonoBehaviour
         Vector2 tileSize = tileTransform.rect.size;
         float xOffset = tileTransform.anchoredPosition.x;
 
-        tileTransform.SetParent(transform);
-        tileTransform.localScale = Vector3.one;
-        tileTransform.localRotation = Quaternion.identity;
-
         tileTransform.anchoredPosition = new Vector2(xOffset + tileSize.x / 2, 0);
     }
 
@@ -67,16 +64,28 @@ public class HandDisplayManager : MonoBehaviour
     public void DisplayMeld(Meld meld)
     {
         TileDisplay inputTile = this.tiles[this.tiles.Count - 1];
-        List<TileDisplay> toMeld = new List<TileDisplay>();
-        //foreach(var tile in tiles)
-        //{
-        //    toMeld.Add(RemoveTile(tile));
-        //}
-        
 
-        //Spawn meld object
-        //Transfer tiles into meld
-        //Offset meld
+        List<TileDisplay> toMeld = new List<TileDisplay>();
+        foreach(var tile in meld.tiles)
+        {
+            TileDisplay findTile = tiles.Find((TileDisplay obj) => { return obj.tile.Equals(tile); });
+            toMeld.Add(findTile);
+            tiles.Remove(findTile);
+
+            SwapTilePos(findTile, tiles[tiles.Count - 1]);
+        }
+
+        MeldDisplay display = Instantiate(meldPrefab, meldPile);
+        display.SetTiles(toMeld, inputTile, meld.type);
+
+        float totalOffset = 0;
+        foreach(var displayMelds in melds)
+        {
+            totalOffset += displayMelds.totalLength;
+        }
+        (display.transform as RectTransform).anchoredPosition = new Vector2(-totalOffset, 0);
+
+        melds.Add(display);
 
     }
 
@@ -93,5 +102,12 @@ public class HandDisplayManager : MonoBehaviour
             Destroy(meld.gameObject);
         }
         melds.Clear();
+    }
+
+    void SwapTilePos(TileDisplay lh, TileDisplay rh)
+    {
+        Vector3 tempPos = lh.transform.position;
+        lh.transform.position = rh.transform.position;
+        rh.transform.position = tempPos;
     }
 }

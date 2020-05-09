@@ -19,10 +19,9 @@ public class PlayerDisplayManager : MonoBehaviour, IHandDisplayCallbacks
     {
     }
 
-    public void OnMeldMade(Player player, Meld meld, Tile input)
+    public void OnMeldMade(Player player, Meld meld)
     {
-        TileDisplay inputTile = handDisplay.tiles[handDisplay.tiles.Count - 1];
-        inputTile.SetOwningPlayer(player);
+        handDisplay.DisplayMeld(meld);
     }
 
     public void OnTileAdded(Player player, Tile tile)
@@ -50,8 +49,6 @@ public class PlayerDisplayManager : MonoBehaviour, IHandDisplayCallbacks
         {
             displayTiles[i].SetOwningPlayer(player);
             displayTiles[i].SetTile(tiles[i]);
-            if(tiles[i] == null)
-                Debug.Break();
         }
         for(int i = tiles.Count - 1; i < nullCount; i++)
         {
@@ -77,6 +74,7 @@ public class PlayerDisplayManager : MonoBehaviour, IHandDisplayCallbacks
         {
             handDisplay.AddTile(Instantiate(tilePrefab));
         }
-
     }
+
+
 }

@@ -6,14 +6,31 @@ using UnityEngine;
 public class MeldDisplay : MonoBehaviour
 {
     List<TileDisplay> tiles;
-
+    public float totalLength;
     private void Awake()
     {
         tiles = new List<TileDisplay>();
     }
 
-    public void SetTiles(List<TileDisplay> tiles, TileDisplay inputTile)
+    public void SetTiles(List<TileDisplay> tiles, TileDisplay inputTile, Meld.Type type)
     {
         this.tiles = tiles;
+        Rect rect = (tiles[0].transform as RectTransform).rect;
+
+        float width = rect.width;
+        totalLength = width * tiles.Count - 1;
+        totalLength += rect.height;
+
+        for(int i = 0; i < tiles.Count; i++)
+        {
+            if(!tiles[i])
+                Debug.Break();
+            RectTransform rectTransform = tiles[i].transform as RectTransform;
+            rectTransform.transform.SetParent(transform);
+            rectTransform.pivot = new Vector2(1.0f, 0.5f);
+            rectTransform.anchoredPosition = new Vector2(-width * i, 0);
+        }
     }
+
+
 }

@@ -151,6 +151,8 @@ public class PseudoGameState : MonoBehaviour, IGameLogicCallbacks
     {
         int hasHandCallsEnabled = 0;
         playerDisplays[m_currentPlayerIndex].OnTileRemoved(player, tile);
+        playerDisplays[m_currentPlayerIndex].RefreshHand(player, player.m_playerData.hand.tiles);
+
         m_lastDiscardedTile = tile;
         for(int i = 0; i < 4; i++)
         {
@@ -175,14 +177,18 @@ public class PseudoGameState : MonoBehaviour, IGameLogicCallbacks
             StartNextTurn();
     }
 
-    public void OnHandCallMade(Player player)
+    public void OnHandCallMade(Player player, Meld meld)
     {
         int callerIndex = m_players.FindIndex((Player other) => { return other == player; });
+
         if(callerIndex != m_currentPlayerIndex)
         {
             playerDisplays[callerIndex].TransferTileIn(playerDisplays[m_currentPlayerIndex].ExtractLastDiscardedTile());
             m_currentPlayerIndex = callerIndex;
         }
+
+        playerDisplays[callerIndex].OnMeldMade(player, meld);
+        playerDisplays[callerIndex].RefreshHand(player, player.m_playerData.hand.tiles);
     }
 
     public bool IsCurrentPlayer(Player player)

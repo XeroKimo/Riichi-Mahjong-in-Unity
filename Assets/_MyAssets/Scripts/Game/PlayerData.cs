@@ -69,7 +69,7 @@ public class PlayerData
         Dictionary<Tile, List<Tile>> tileMap = TileHelpers.ArrangeTilesByTile(hand.tiles);
         if(!tileMap.ContainsKey(input))
             return false;
-
+        tileMap[input].Add(input);
         if(tileMap[input].Count == 4)
         {
             meld = new Meld(tileMap[input], true);
@@ -86,8 +86,10 @@ public class PlayerData
         Dictionary<Tile, List<Tile>> tileMap = TileHelpers.ArrangeTilesByTile(hand.tiles);
         if(!tileMap.ContainsKey(input))
             return false;
+        tileMap[input].Add(input);
         if(tileMap[input].Count == 3)
         {
+
             meld = new Meld(tileMap[input], true);
             handCalls |= HandCall.Pon;
             return true;

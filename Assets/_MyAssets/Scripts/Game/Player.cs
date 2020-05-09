@@ -6,8 +6,7 @@ public interface IGameLogicCallbacks
 {
     void OnTileRemoved(Player player, Tile tile);
 
-    //Potentially seperate this function into 2. For making melds, and for winning hand calls
-    void OnHandCallMade(Player player);
+    void OnHandCallMade(Player player, Meld meld);
 
     void OnWinningCallMade(Player player, HandCall handCall);
 
@@ -21,7 +20,7 @@ public interface IHandDisplayCallbacks
     void OnTileAdded(Player player, Tile tile);
     void OnTileRemoved(Player player, Tile tile);
     void RefreshHand(Player player, List<Tile> tile);
-    void OnMeldMade(Player player, Meld meld, Tile input);
+    void OnMeldMade(Player player, Meld meld);
 }
 
 public class Player : MonoBehaviour
@@ -36,6 +35,7 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
+        
         m_playerData = new PlayerData();
         m_cachedMelds = new Dictionary<HandCall, List<Meld>>();
         m_cachedMelds[HandCall.Chi] = new List<Meld>();
@@ -63,10 +63,11 @@ public class Player : MonoBehaviour
 
         m_hasDiscardTile = true;
 
-        gameCallbacks.OnTileRemoved(this, tile);
-
         ClearCachedMelds();
         RefreshHand();
+
+        gameCallbacks.OnTileRemoved(this, tile);
+
 
         return true;
     }
@@ -165,7 +166,7 @@ public class Player : MonoBehaviour
         if((m_playerData.handCalls & HandCall.Chi) != HandCall.Chi)
             return;
         AddMeld(m_cachedMelds[HandCall.Chi][index]);
-        OnHandCallMade();
+        OnHandCallMade(m_cachedMelds[HandCall.Chi][index]);
         ClearCachedMelds();
     }
 
@@ -174,7 +175,7 @@ public class Player : MonoBehaviour
         if((m_playerData.handCalls & HandCall.Pon) != HandCall.Pon)
             return;
         AddMeld(m_cachedMelds[HandCall.Pon][0]);
-        OnHandCallMade();
+        OnHandCallMade(m_cachedMelds[HandCall.Pon][0]);
         ClearCachedMelds();
     }
 
@@ -194,7 +195,7 @@ public class Player : MonoBehaviour
         {
             AddMeld(m_cachedMelds[HandCall.Kan][0]);
         }
-        OnHandCallMade();
+        OnHandCallMade(m_cachedMelds[HandCall.Kan][0]);
         ClearCachedMelds();
     }
 
@@ -232,9 +233,9 @@ public class Player : MonoBehaviour
         m_playerData.handCalls = HandCall.None;
     }
 
-    private void OnHandCallMade()
+    private void OnHandCallMade(Meld meld)
     {
-        gameCallbacks.OnHandCallMade(this);
+        gameCallbacks.OnHandCallMade(this, meld);
     }
 
     private void OnWinningCallMade(HandCall handCall)

@@ -16,8 +16,6 @@ public class DiscardDisplayManager : MonoBehaviour
         tileDisplay.transform.SetParent(this.transform);
 
         RectTransform transform = tileDisplay.transform as RectTransform;
-        transform.anchorMin = new Vector2(0, 1);
-        transform.anchorMax = new Vector2(0, 1);
         transform.pivot = new Vector2(0, 1);
         transform.localScale = Vector3.one;
         Vector2 size = transform.rect.size;

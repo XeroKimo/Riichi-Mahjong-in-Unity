@@ -57,7 +57,7 @@ public class TileHelpers
 
     public static List<Tile> SortTiles(List<Tile> tiles, Dictionary<Tile.Suit, int> suitOrder)
     {
-        List<Tile> sortedTiles = new List<Tile>(tiles);
+        List<Tile> sortedTiles = new List<Tile>(tiles.Count);
         List<Tile.Suit> order = DecodeSuitOrder(suitOrder);
 
         if (suitOrder.ContainsKey(Tile.Suit.Count))
@@ -74,9 +74,7 @@ public class TileHelpers
                 sortedSuits[(Tile.Suit)i] = TileHelpers.SortSequence((sortedSuits[(Tile.Suit)i]));
         }
 
-        sortedTiles = sortedSuits[order[0]];
-
-        for (int i = 1; i < order.Count; i++)
+        for (int i = 0; i < order.Count; i++)
         {
             if(sortedSuits.ContainsKey(order[i]))
                 sortedTiles.AddRange(sortedSuits[order[i]]);
