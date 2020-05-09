@@ -22,6 +22,7 @@ public class Deck
         m_tiles = new List<Tile>();
         m_wallLength = 17;
         BuildDeck();
+
     }
 
     public List<Tile> GetTiles()
@@ -33,10 +34,11 @@ public class Deck
     {
         Tile output;
         if (m_currentTile == m_lastPlayableTile)
-            return null;
+            return new Tile(Tile.Suit.Count, Tile.Face.Count);
 
         output = m_tiles[m_currentTile++];
         m_currentTile = m_currentTile % m_tiles.Count;
+        //Debug.Log(output.suit + " " + output.face);
 
         return output;
     }
@@ -44,7 +46,6 @@ public class Deck
     public List<Tile> DrawMultipleTiles(int count)
     {
         List<Tile> amountToDraw = new List<Tile>();
-        Tile tile = DrawTile();
         for(int i = 0; i < count; i++)
             amountToDraw.Add(DrawTile());
         return amountToDraw;
@@ -54,7 +55,7 @@ public class Deck
     {
         Tile output;
         if (m_lastTile == m_currentTile)
-            return null;
+            return Tile.EmptyTile;
 
         output = m_tiles[m_lastTile--];
         m_lastPlayableTile--;

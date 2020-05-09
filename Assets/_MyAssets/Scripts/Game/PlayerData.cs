@@ -30,7 +30,7 @@ public class PlayerData
 
     public bool CanCallLateKan(out Meld outMeld)
     {
-        outMeld = null;
+        outMeld = Meld.emptyMeld;
         Tile drawnTile = hand.tiles[hand.tiles.Count - 1];
         foreach(var meld in hand.melds)
         {
@@ -50,7 +50,7 @@ public class PlayerData
 
     public bool CanCallClosedKan(out Meld meld)
     {
-        meld = null;
+        meld = Meld.emptyMeld;
         Dictionary<Tile, List<Tile>> tileMap = TileHelpers.ArrangeTilesByTile(hand.tiles);
         Tile drawnTile = hand.tiles[hand.tiles.Count - 1];
 
@@ -65,7 +65,7 @@ public class PlayerData
 
     public bool CanCallOpenKan(Tile input, out Meld meld)
     {
-        meld = null;
+        meld = Meld.emptyMeld;
         Dictionary<Tile, List<Tile>> tileMap = TileHelpers.ArrangeTilesByTile(hand.tiles);
         if(!tileMap.ContainsKey(input))
             return false;
@@ -82,7 +82,7 @@ public class PlayerData
 
     public bool CanCallPon(Tile input, out Meld meld)
     {
-        meld = null;
+        meld = Meld.emptyMeld;
         Dictionary<Tile, List<Tile>> tileMap = TileHelpers.ArrangeTilesByTile(hand.tiles);
         if(!tileMap.ContainsKey(input))
             return false;
@@ -100,27 +100,27 @@ public class PlayerData
 
     public bool CanCallChi(Tile input, out Meld meld)
     {
-        meld = null;
+        meld = Meld.emptyMeld;
         if(TileHelpers.IsHonor(input))
             return false;
 
-        Dictionary<int, List<Tile>> tileValue = null;
+        Dictionary<int, List<Tile>> tilesByValue = null;
 
         {
-            List<Tile> suit = TileHelpers.GetTilesOfSuit(hand.tiles, input.suit);
+            List<Tile> tilesBySuit = TileHelpers.GetTilesOfSuit(hand.tiles, input.suit);
 
-            if(suit.Count < 2)
+            if(tilesBySuit.Count < 2)
                 return false;
 
-            tileValue = TileHelpers.ArrangeTilesByValue(suit);
+            tilesByValue = TileHelpers.ArrangeTilesByValue(tilesBySuit);
 
-            if(!tileValue.ContainsKey(input.rawValue))
-                tileValue[input.rawValue] = new List<Tile>();
+            if(!tilesByValue.ContainsKey(input.rawValue))
+                tilesByValue[input.rawValue] = new List<Tile>();
 
-            tileValue[input.rawValue].Add(input);
+            tilesByValue[input.rawValue].Add(input);
         }
 
-        Tile[] sequence = TileHelpers.CreateSequenceLowestValue(tileValue, input);
+        Tile[] sequence = TileHelpers.CreateSequenceLowestValue(tilesByValue, input);
         if(sequence == null)
             return false;
 

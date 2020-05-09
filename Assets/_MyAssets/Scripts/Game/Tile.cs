@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tile
+public struct Tile
 {
     public enum Suit
     {
@@ -40,23 +40,31 @@ public class Tile
     static public int windMax { get => (int)Face.North + 1; }
     static public int dragonMin { get => (int)Face.Red; }
     static public int dragonMax { get => (int)Face.Green + 1; }
+    public static readonly Tile EmptyTile = new Tile(Suit.Count, Face.Count);
 
-    [SerializeField]
     public Suit suit { get; private set; }
     public int rawValue { get; private set; }
-    public Face face { get => (Face)rawValue; private set => this.rawValue = (int)value; }
+    public Face face { get => (Face)rawValue; private set => rawValue = (int)value; }
 
-
-    public Tile(Suit suit, Face face)
+    public Tile(Suit _suit, Face _face)
     {
-        this.suit = suit;
-        this.face = face;
+        suit = _suit;
+        rawValue = (int)_face;
     }
 
     public Tile(Tile other)
     {
-        this.suit = other.suit;
-        this.face = other.face;
+        suit = other.suit;
+        rawValue = other.rawValue;
+    }
+
+    public static bool operator ==(Tile lh, Tile rh)
+    {
+        return lh.suit == rh.suit && lh.rawValue == rh.rawValue;
+    }
+    public static bool operator !=(Tile lh, Tile rh)
+    {
+        return lh.suit != rh.suit && lh.rawValue != rh.rawValue;
     }
 
     public override bool Equals(object obj)

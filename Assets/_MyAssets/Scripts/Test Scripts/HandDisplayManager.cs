@@ -27,6 +27,7 @@ public class HandDisplayManager : MonoBehaviour
         float xOffset = tileSize.x * (tiles.Count - 1);
 
         tileTransform.SetParent(transform);
+        tileTransform.pivot = tileTransform.anchorMin = tileTransform.anchorMax = new Vector2(0, 0.5f);
         tileTransform.localScale = Vector3.one;
         tileTransform.localRotation = Quaternion.identity;
 
@@ -56,23 +57,18 @@ public class HandDisplayManager : MonoBehaviour
         return lastTile;
     }
 
-    public void RefreshHand(List<TileDisplay> tiles)
-    {
-        this.tiles = tiles; 
-    }
-
     public void DisplayMeld(Meld meld)
     {
         TileDisplay inputTile = this.tiles[this.tiles.Count - 1];
 
         List<TileDisplay> toMeld = new List<TileDisplay>();
-        foreach(var tile in meld.tiles)
+        for(int i = 0; i < meld.tiles.Length; i++)
         {
-            TileDisplay findTile = tiles.Find((TileDisplay obj) => { return obj.tile.Equals(tile); });
-            toMeld.Add(findTile);
-            tiles.Remove(findTile);
+            TileDisplay findTile = tiles.Find((TileDisplay obj) => { return obj.tile == meld.tiles[i]; });
 
-            SwapTilePos(findTile, tiles[tiles.Count - 1]);
+            SwapTiles(findTile, tiles[tiles.Count - 1]);
+            toMeld.Add(tiles[tiles.Count - 1]);
+            tiles.RemoveAt(tiles.Count - 1);
         }
 
         MeldDisplay display = Instantiate(meldPrefab, meldPile);
@@ -104,10 +100,10 @@ public class HandDisplayManager : MonoBehaviour
         melds.Clear();
     }
 
-    void SwapTilePos(TileDisplay lh, TileDisplay rh)
+    void SwapTiles(TileDisplay lh, TileDisplay rh)
     {
-        Vector3 tempPos = lh.transform.position;
-        lh.transform.position = rh.transform.position;
-        rh.transform.position = tempPos;
+        Tile temp = lh.tile;
+        lh.SetTile(rh.tile);
+        rh.SetTile(temp);
     }
 }

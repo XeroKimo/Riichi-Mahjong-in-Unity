@@ -12,14 +12,14 @@ public class TileDisplay : MonoBehaviour, IPointerClickHandler, ISelectHandler
 
     public void Awake()
     {
-        SetTile(null);
+        SetTile(Tile.EmptyTile);
     }
 
     public void SetTile(Tile tile)
     {
         this.tile = tile;
-        gameObject.SetActive(this.tile != null);
-        if(tile == null)
+        gameObject.SetActive(this.tile != Tile.EmptyTile);
+        if(tile == Tile.EmptyTile)
             return;
 
         switch(tile.suit)

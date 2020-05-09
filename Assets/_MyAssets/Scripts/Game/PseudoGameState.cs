@@ -18,7 +18,7 @@ public class PseudoGameState : MonoBehaviour, IGameLogicCallbacks
 
     int m_hasHandCallsAvailable;
 
-    Tile m_lastDiscardedTile = null;
+    Tile m_lastDiscardedTile = Tile.EmptyTile;
 
     void Awake()
     {
@@ -74,7 +74,7 @@ public class PseudoGameState : MonoBehaviour, IGameLogicCallbacks
 
     void StartNextRound(int winnerIndex)
     {
-        m_lastDiscardedTile = null;
+        m_lastDiscardedTile = Tile.EmptyTile;
         ChangeDealers(winnerIndex);
         ResetDeck();
         ResetHands();

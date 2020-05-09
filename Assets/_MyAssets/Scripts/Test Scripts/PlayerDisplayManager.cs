@@ -52,7 +52,7 @@ public class PlayerDisplayManager : MonoBehaviour, IHandDisplayCallbacks
         }
         for(int i = tiles.Count - 1; i < nullCount; i++)
         {
-            displayTiles[i].SetTile(null);
+            displayTiles[i].SetTile(Tile.EmptyTile);
         }
     }
 

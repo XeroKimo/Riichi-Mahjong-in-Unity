@@ -18,16 +18,15 @@ public class MeldDisplay : MonoBehaviour
         Rect rect = (tiles[0].transform as RectTransform).rect;
 
         float width = rect.width;
-        totalLength = width * tiles.Count - 1;
+        totalLength = width * (tiles.Count - 1);
         totalLength += rect.height;
 
-        for(int i = 0; i < tiles.Count; i++)
+        for(int i = tiles.Count - 1; i >= 0; i--)
         {
-            if(!tiles[i])
-                Debug.Break();
             RectTransform rectTransform = tiles[i].transform as RectTransform;
             rectTransform.transform.SetParent(transform);
-            rectTransform.pivot = new Vector2(1.0f, 0.5f);
+            rectTransform.pivot = rectTransform.anchorMin = rectTransform.anchorMax = new Vector2(1.0f, 0.5f);
+            rectTransform.localScale = Vector2.one;
             rectTransform.anchoredPosition = new Vector2(-width * i, 0);
         }
     }

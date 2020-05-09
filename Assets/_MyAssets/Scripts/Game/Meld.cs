@@ -1,8 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Meld
+public struct Meld
 {
     public enum Type
     {
@@ -17,18 +18,24 @@ public class Meld
     public Type type { get; private set; }
     public bool open { get; private set; }
 
+    public static readonly Meld emptyMeld = new Meld();
+
     public Meld(Tile[] tiles, bool open)
     {
         this.tiles = tiles;
-        this.type = DetermineType(this.tiles); 
+        this.type = Type.Count; 
         this.open = open;
+
+        this.type = DetermineType(this.tiles);
     }
 
     public Meld(List<Tile> tiles, bool open)
     {
         this.tiles = tiles.ToArray();
-        this.type = DetermineType(this.tiles);
+        this.type = Type.Count;
         this.open = open;
+
+        this.type = DetermineType(this.tiles);
     }
 
     private Type DetermineType(Tile[] tiles)
@@ -47,7 +54,7 @@ public class Meld
         if (!(obj is Meld))
             return false;
 
-        Meld meld = obj as Meld;
+        Meld meld = (Meld)obj;
         if (meld.tiles.Length != tiles.Length)
                 return false;
         for (int i = 0; i < meld.tiles.Length; i++)
