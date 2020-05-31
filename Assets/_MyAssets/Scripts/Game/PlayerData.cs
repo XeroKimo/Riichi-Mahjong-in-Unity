@@ -101,31 +101,31 @@ public class PlayerData
     public bool CanCallChi(Tile input, out Meld meld)
     {
         meld = Meld.emptyMeld;
-        if(TileHelpers.IsHonor(input))
-            return false;
+        //if(TileHelpers.IsHonor(input))
+        //    return false;
 
-        Dictionary<int, List<Tile>> tilesByValue = null;
+        //Dictionary<int, List<Tile>> tilesByValue = null;
 
-        {
-            List<Tile> tilesBySuit = TileHelpers.GetTilesOfSuit(hand.tiles, input.suit);
+        //{
+        //    List<Tile> tilesBySuit = TileHelpers.GetTilesOfSuit(hand.tiles, input.suit);
 
-            if(tilesBySuit.Count < 2)
-                return false;
+        //    if(tilesBySuit.Count < 2)
+        //        return false;
 
-            tilesByValue = TileHelpers.ArrangeTilesByValue(tilesBySuit);
+        //    tilesByValue = TileHelpers.ArrangeTilesByValue(tilesBySuit);
 
-            if(!tilesByValue.ContainsKey(input.rawValue))
-                tilesByValue[input.rawValue] = new List<Tile>();
+        //    if(!tilesByValue.ContainsKey(input.rawValue))
+        //        tilesByValue[input.rawValue] = new List<Tile>();
 
-            tilesByValue[input.rawValue].Add(input);
-        }
+        //    tilesByValue[input.rawValue].Add(input);
+        //}
 
-        Tile[] sequence = TileHelpers.CreateSequenceLowestValue(tilesByValue, input);
-        if(sequence == null)
-            return false;
+        //Tile[] sequence = TileHelpers.CreateSequenceLowestValue(tilesByValue, input);
+        //if(sequence == null)
+        //    return false;
 
-        meld = new Meld(sequence, true);
-        handCalls |= HandCall.Chi;
+        //meld = new Meld(sequence, true);
+        //handCalls |= HandCall.Chi;
 
         return true;
     }

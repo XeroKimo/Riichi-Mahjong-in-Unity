@@ -5,17 +5,19 @@ using UnityEngine;
 public class DiscardPile
 {
     List<Tile> m_tiles;
-    PlayerData m_lastDiscardee;
 
+    public DiscardPile()
+    {
+        m_tiles = new List<Tile>();
+    }
     private void Awake()
     {
         m_tiles = new List<Tile>();
     }
 
-    public void AddTile(Tile tile, PlayerData discardee)
+    public void AddTile(Tile tile)
     {
         m_tiles.Add(tile);
-        m_lastDiscardee = discardee;
     }
 
     public Tile PeekLastDiscardedTile()
@@ -34,7 +36,5 @@ public class DiscardPile
     {
         m_tiles.Clear();
     }
-
-    public PlayerData GetLastDiscardee() { return m_lastDiscardee; }
 
 }

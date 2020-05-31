@@ -99,15 +99,15 @@ public static class HandHelpers
     static List<Tile> GetOrphans()
     {
         List<Tile> tile = new List<Tile>();
-        for (int i = Tile.honorMin; i < Tile.honorMax; i++)
-        {
-            tile.Add(new Tile(Tile.Suit.Honor, (Tile.Face)i));
-        }
-        for (int i = 1; i < (int)Tile.Suit.Count; i++)
-        {
-            tile.Add(new Tile((Tile.Suit)i, Tile.Face.One));
-            tile.Add(new Tile((Tile.Suit)i, Tile.Face.Nine));
-        }
+        //for (int i = Tile.honorMin; i < Tile.honorMax; i++)
+        //{
+        //    tile.Add(new Tile(Tile.Suit.Honor, (Tile.Face)i));
+        //}
+        //for (int i = 1; i < (int)Tile.Suit.Count; i++)
+        //{
+        //    tile.Add(new Tile((Tile.Suit)i, Tile.Face.One));
+        //    tile.Add(new Tile((Tile.Suit)i, Tile.Face.Nine));
+        //}
         return tile;
     }
 

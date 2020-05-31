@@ -7,19 +7,19 @@ using UnityEngine.UI;
 public class TileDisplay : MonoBehaviour, IPointerClickHandler, ISelectHandler
 {
     public Tile tile { get; private set; }
-    Player m_player;
+    IPlayerActions m_player;
     public Text text;
 
     public void Awake()
     {
-        SetTile(Tile.EmptyTile);
+        SetTile(Tile.nullTile);
     }
 
     public void SetTile(Tile tile)
     {
         this.tile = tile;
-        gameObject.SetActive(this.tile != Tile.EmptyTile);
-        if(tile == Tile.EmptyTile)
+        gameObject.SetActive(this.tile != Tile.nullTile);
+        if(tile == Tile.nullTile)
             return;
 
         switch(tile.suit)
@@ -43,25 +43,46 @@ public class TileDisplay : MonoBehaviour, IPointerClickHandler, ISelectHandler
         switch(tile.face)
         {
         case Tile.Face.One:
-            text.text += "1";
+            if(tile.suit == Tile.Suit.Honor)
+                text.text += "E";
+            else
+                text.text += "1";
             break;
         case Tile.Face.Two:
-            text.text += "2";
+            if(tile.suit == Tile.Suit.Honor)
+                text.text += "S";
+            else
+                text.text += "2";
             break;
         case Tile.Face.Three:
-            text.text += "3";
+            if(tile.suit == Tile.Suit.Honor)
+                text.text += "W";
+            else
+                text.text += "3";
             break;
         case Tile.Face.Four:
-            text.text += "4";
+            if(tile.suit == Tile.Suit.Honor)
+                text.text += "N";
+            else
+                text.text += "4";
             break;
         case Tile.Face.Five:
-            text.text += "5";
+            if(tile.suit == Tile.Suit.Honor)
+                text.text += "G";
+            else
+                text.text += "5";
             break;
         case Tile.Face.Six:
-            text.text += "6";
+            if(tile.suit == Tile.Suit.Honor)
+                text.text += "R";
+            else
+                text.text += "6";
             break;
         case Tile.Face.Seven:
-            text.text += "7";
+            if(tile.suit == Tile.Suit.Honor)
+                text.text += "Wh";
+            else
+                text.text += "7";
             break;
         case Tile.Face.Eight:
             text.text += "8";
@@ -69,33 +90,12 @@ public class TileDisplay : MonoBehaviour, IPointerClickHandler, ISelectHandler
         case Tile.Face.Nine:
             text.text += "9";
             break;
-        case Tile.Face.East:
-            text.text += "E";
-            break;
-        case Tile.Face.South:
-            text.text += "S";
-            break;
-        case Tile.Face.West:
-            text.text += "W";
-            break;
-        case Tile.Face.North:
-            text.text += "N";
-            break;
-        case Tile.Face.Red:
-            text.text += "R";
-            break;
-        case Tile.Face.White:
-            text.text += "W";
-            break;
-        case Tile.Face.Green:
-            text.text += "G";
-            break;
         default:
             break;
         }
     }
 
-    public void SetOwningPlayer(Player player)
+    public void SetOwningPlayer(IPlayerActions player)
     {
         m_player = player;
     }
@@ -114,10 +114,10 @@ public class TileDisplay : MonoBehaviour, IPointerClickHandler, ISelectHandler
 
     void RemoveTileFromHand()
     {
-        if(!m_player)
+        if(m_player == null)
             return;
 
-        m_player.RemoveTileFromHand(tile);
+        m_player.RemoveTile(tile);
     }
 
     public void OnSelect(BaseEventData eventData)

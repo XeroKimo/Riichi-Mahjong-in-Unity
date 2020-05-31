@@ -1,90 +1,86 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.UI;
 using UnityEngine;
 
 public struct Tile
 {
-    public enum Suit
-    {
-        Honor = 0,
-        Character,
-        Bamboo,
-        Circle,
-        Count
-    }
-    public enum Face
-    {
-        One = 0,
-        Two,
-        Three,
-        Four,
-        Five,
-        Six,
-        Seven,
-        Eight,
-        Nine,
-        East,
-        South,
-        West,
-        North,
-        Red,
-        White,
-        Green,
-        Count
-    }
-    static public int numberMin { get => (int)Face.One; }
-    static public int numberMax { get => (int)Face.Nine + 1; }
-    static public int honorMin { get => (int)Face.East; }
-    static public int honorMax { get => (int)Face.Green + 1; }
-    static public int windMin { get => (int)Face.East; }
-    static public int windMax { get => (int)Face.North + 1; }
-    static public int dragonMin { get => (int)Face.Red; }
-    static public int dragonMax { get => (int)Face.Green + 1; }
-    public static readonly Tile EmptyTile = new Tile(Suit.Count, Face.Count);
+    byte m_tileID;
+    public Suit suit { get => (Suit)(m_tileID >> suitBitOffset); }
+    public Face face { get => (Face)((m_tileID | ((suitCount - 1) << suitBitOffset)) ^ ((suitCount - 1) << suitBitOffset)); }
 
-    public Suit suit { get; private set; }
-    public int rawValue { get; private set; }
-    public Face face { get => (Face)rawValue; private set => rawValue = (int)value; }
 
-    public Tile(Suit _suit, Face _face)
+    public Tile(Suit suit, Face face)
     {
-        suit = _suit;
-        rawValue = (int)_face;
+        m_tileID = 0;
+        m_tileID += (byte)((byte)suit << suitBitOffset);
+        m_tileID += (byte)face;
     }
-
     public Tile(Tile other)
     {
-        suit = other.suit;
-        rawValue = other.rawValue;
+        m_tileID = other.m_tileID;
+    }
+    private Tile(byte value)
+    {
+        m_tileID = value;
     }
 
     public static bool operator ==(Tile lh, Tile rh)
     {
-        return lh.suit == rh.suit && lh.rawValue == rh.rawValue;
+        return lh.m_tileID == rh.m_tileID;
     }
     public static bool operator !=(Tile lh, Tile rh)
     {
-        return lh.suit != rh.suit && lh.rawValue != rh.rawValue;
+        return lh.m_tileID != rh.m_tileID;
     }
-
     public override bool Equals(object obj)
     {
         return obj is Tile tile &&
-               suit == tile.suit &&
-               rawValue == tile.rawValue;
+               m_tileID == tile.m_tileID;
     }
-
     public override int GetHashCode()
     {
         var hashCode = -1733114086;
-        hashCode = hashCode * -1521134295 + suit.GetHashCode();
-        hashCode = hashCode * -1521134295 + rawValue.GetHashCode();
+        hashCode = hashCode * -1521134295 + m_tileID.GetHashCode();
         return hashCode;
     }
 
-    public bool EqualValue(Tile other)
+
+    public static readonly Tile nullTile = new Tile(byte.MaxValue);
+    const byte suitBitOffset = 6;
+    public enum Suit : byte
     {
-        return rawValue == other.rawValue;
+        Honor = 0,
+        Character,
+        Circle,
+        Bamboo
+    }
+    public enum Face : byte
+    {
+        One = 0,
+        Two = 1,
+        Three = 2,
+        Four = 3,
+        Five = 4,
+        Six = 5,
+        Seven = 6,
+        Eight = 7,
+        Nine = 8,
+
+        East = 0,
+        South = 1,
+        West = 2,
+        North = 3,
+        Green = 4,
+        Red = 5,
+        White = 6
     }
 
+    public const byte suitCount = 4;
+    public const byte numberCount = 9;
+    public const byte honorCount = 7;
+    public const byte windMin = 0;
+    public const byte windMax = 3;
+    public const byte dragonMin = 4;
+    public const byte dragonMax = 7;
 }
