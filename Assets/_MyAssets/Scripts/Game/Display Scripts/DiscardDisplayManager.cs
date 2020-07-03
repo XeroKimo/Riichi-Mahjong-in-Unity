@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class DiscardDisplayManager : MonoBehaviour
 {
+    public TileDisplayPool tileDisplayPool;
     Stack<TileDisplay> m_discardedTiles;
 
     private void Awake()
@@ -38,12 +39,17 @@ public class DiscardDisplayManager : MonoBehaviour
         return m_discardedTiles.Pop();
     }
 
+    public void RemoveLastDiscardedTile()
+    {
+        m_discardedTiles.Peek().SetTile(Tile.nullTile);
+        m_discardedTiles.Pop();
+    }
+
     public void ClearPile()
     {
-        if(m_discardedTiles == null)
         while(m_discardedTiles.Count > 0)
         {
-            Destroy(m_discardedTiles.Pop().gameObject);
+            m_discardedTiles.Pop().SetTile(Tile.nullTile);
         }
     }
 }

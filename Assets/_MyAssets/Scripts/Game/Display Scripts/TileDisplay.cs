@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class TileDisplay : MonoBehaviour, IPointerClickHandler, ISelectHandler
 {
     public Tile tile { get; private set; }
+    public TileDisplayPool displayPool { set; private get; }
     IPlayerActions m_player;
     public Text text;
 
@@ -20,7 +21,10 @@ public class TileDisplay : MonoBehaviour, IPointerClickHandler, ISelectHandler
         this.tile = tile;
         gameObject.SetActive(this.tile != Tile.nullTile);
         if(tile == Tile.nullTile)
+        {
+            displayPool.ReturnTileToPool(this);
             return;
+        }
 
         switch(tile.suit)
         {

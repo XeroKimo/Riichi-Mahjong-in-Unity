@@ -11,7 +11,7 @@ public class Player : IPlayerActions
 
     private Hand m_hand;
     private HandCall m_callFlags;
-    private CachedMelds m_futureMelds;
+    private CachedMelds m_cachedMelds;
 
     private IGameCallbacks m_gameCallbacks;
     private IPlayerEventCallbacks m_eventCallbacks;
@@ -26,17 +26,19 @@ public class Player : IPlayerActions
 
         EnableHandCalls(tile);
     }
-    public bool EnableHandCalls(Tile lastDiscardedTile, bool enableChi)
+    public bool EnableHandCalls(Tile lastDiscardedTile, byte currentPlayerID)
     {
+        bool enableChi = (m_playerID == 0) ? currentPlayerID == 3 : currentPlayerID == m_playerID - 1;
+
         if(enableChi)
-            EnableChi(lastDiscardedTile);
-        EnablePon(lastDiscardedTile);
-        EnableKan(lastDiscardedTile, true);
+            EnableChi(lastDiscardedTile, currentPlayerID);
+        EnablePon(lastDiscardedTile, currentPlayerID);
+        EnableKan(lastDiscardedTile, true, currentPlayerID);
         EnableRon(lastDiscardedTile);
 
         bool hasFlagsSet = m_callFlags != HandCall.None;
         if(hasFlagsSet)
-            m_eventCallbacks.OnHandCallAvailable(m_callFlags, m_futureMelds.chi);
+            m_eventCallbacks.OnHandCallAvailable(m_callFlags, m_cachedMelds.chi);
         return hasFlagsSet;
     }
     public void ResetHand(Hand hand)
@@ -56,6 +58,7 @@ public class Player : IPlayerActions
 
         m_hasDiscardedTile = true;
         m_hand.tiles.Remove(tile);
+        m_eventCallbacks.OnTileRemoved(tile);
         m_gameCallbacks.OnTileDiscarded(tile);
     }
 
@@ -64,7 +67,7 @@ public class Player : IPlayerActions
         if((m_callFlags & HandCall.Chi) != HandCall.Chi)
             return;
 
-        Meld meld = m_futureMelds.chi[index];
+        Meld meld = m_cachedMelds.chi[index];
 
         CreateMeld(meld);
         m_gameCallbacks.OnHandCallMade(m_playerID, HandCall.Chi);
@@ -74,7 +77,7 @@ public class Player : IPlayerActions
         if((m_callFlags & HandCall.Pon) != HandCall.Pon)
             return;
 
-        Meld meld = m_futureMelds.pon;
+        Meld meld = m_cachedMelds.pon;
 
         CreateMeld(meld);
         m_gameCallbacks.OnHandCallMade(m_playerID, HandCall.Pon);
@@ -84,7 +87,7 @@ public class Player : IPlayerActions
         if((m_callFlags & HandCall.Kan) != HandCall.Kan)
             return;
 
-        Meld meld = m_futureMelds.kan;
+        Meld meld = m_cachedMelds.kan;
 
         CreateMeld(meld);
         m_gameCallbacks.OnHandCallMade(m_playerID, HandCall.Kan);
@@ -120,15 +123,15 @@ public class Player : IPlayerActions
 
     private void EnableHandCalls(Tile drawnTile)
     {
-        EnableKan(drawnTile, false);
+        EnableKan(drawnTile, false, m_playerID);
         EnableLateKan(drawnTile);
         EnableTsumo();
 
         if(m_callFlags != HandCall.None)
-            m_eventCallbacks.OnHandCallAvailable(m_callFlags, m_futureMelds.chi);
+            m_eventCallbacks.OnHandCallAvailable(m_callFlags, m_cachedMelds.chi);
     }
 
-    private void EnableChi(Tile input)
+    private void EnableChi(Tile input, byte inputPlayerID)
     {
         Dictionary<Tile.Suit, List<Tile>> groupedSuits = TileHelpers.ArrangeTilesBySuit(m_hand.tiles);
 
@@ -154,14 +157,14 @@ public class Player : IPlayerActions
                 Tile.Face highest = (Tile.Face)i;
                 Tile[] tiles = { groupedFaces[lowest][0], groupedFaces[middle][0], groupedFaces[highest][0] };
 
-                m_futureMelds.chi.Add(new Meld(tiles, true));
+                m_cachedMelds.chi.Add(new Meld(tiles, true, new Meld.InputTile(inputPlayerID, input)));
             }
         }
 
-        if(m_futureMelds.chi.Count > 0)
+        if(m_cachedMelds.chi.Count > 0)
             m_callFlags |= HandCall.Chi;
     }
-    private void EnablePon(Tile input)
+    private void EnablePon(Tile input, byte inputPlayerID)
     {
         Dictionary<Tile, List<Tile>> groupedTiles = TileHelpers.ArrangeTilesByTile(m_hand.tiles);
 
@@ -174,11 +177,11 @@ public class Player : IPlayerActions
             return;
 
         Tile[] tiles = { input, groupedTiles[input][0], groupedTiles[input][1] };
-        m_futureMelds.pon = (new Meld(tiles, true));
+        m_cachedMelds.pon = (new Meld(tiles, true, new Meld.InputTile(inputPlayerID, input)));
 
         m_callFlags |= HandCall.Pon;
     }
-    private void EnableKan(Tile input, bool isOpen)
+    private void EnableKan(Tile input, bool isOpen, byte inputPlayerID)
     {
         Dictionary<Tile, List<Tile>> groupedTiles = TileHelpers.ArrangeTilesByTile(m_hand.tiles);
 
@@ -191,7 +194,7 @@ public class Player : IPlayerActions
             return;
 
         Tile[] tiles = { input, groupedTiles[input][0], groupedTiles[input][1] };
-        m_futureMelds.kan = (new Meld(tiles, isOpen));
+        m_cachedMelds.kan = (new Meld(tiles, isOpen, new Meld.InputTile(inputPlayerID, input)));
 
         m_callFlags |= HandCall.Kan;
     }
@@ -209,7 +212,7 @@ public class Player : IPlayerActions
             {
                 List<Tile> tiles = new List<Tile>(meld.tiles);
                 tiles.Add(input);
-                m_futureMelds.kan = (new Meld(tiles, true));
+                m_cachedMelds.kan = (new Meld(tiles, true, new Meld.InputTile(meld.input.playerID, input)));
 
                 m_callFlags |= HandCall.LateKan;
 
@@ -239,7 +242,7 @@ public class Player : IPlayerActions
     private void ClearCallFlags()
     {
         m_callFlags = HandCall.None;
-        m_futureMelds.Clear();
+        m_cachedMelds.Clear();
     }
 
     //Constructor
@@ -249,7 +252,7 @@ public class Player : IPlayerActions
         m_gameCallbacks = gameCallbacks;
         m_eventCallbacks = eventCallbacks;
 
-        m_futureMelds.chi = new List<Meld>();
+        m_cachedMelds.chi = new List<Meld>();
         m_playerID = playerID;
         m_eventCallbacks.OnPlayerCreated(this);
     }
@@ -496,6 +499,7 @@ public interface IGameCallbacks
 public interface IPlayerEventCallbacks
 {
     void OnTileAdded(Tile tile);
+    void OnTileRemoved(Tile tile);
     void OnHandCallAvailable(HandCall callFlags, List<Meld> cachedChi);
     void OnMeldCreated(Meld meld);
     void OnHandReset(Hand hand);

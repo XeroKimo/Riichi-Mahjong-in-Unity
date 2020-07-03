@@ -8,7 +8,7 @@ public struct Meld
     public Tile[] tiles { get; private set; }
     public Type type { get; private set; }
     public bool open { get; private set; }
-
+    public InputTile input { get; private set; }
 
     private Type DetermineType(Tile[] tiles)
     {
@@ -45,18 +45,19 @@ public struct Meld
         }
     }
 
-    public Meld(Tile[] tiles, bool open)
+    public Meld(Tile[] tiles, bool open, InputTile inputTile)
     {
         this.tiles = tiles;
         this.type = Type.Pair;
         this.open = open;
+        this.input = inputTile;
 
         this.type = DetermineType(this.tiles);
-        if(type == Type.Pair)
+        if(type == Type.Sequence)
             if(!IsSequenceOrdered())
                 OrderSequence();
     }
-    public Meld(List<Tile> tiles, bool open) : this(tiles.ToArray(), open)
+    public Meld(List<Tile> tiles, bool open, InputTile inputTile) : this(tiles.ToArray(), open, inputTile)
     {
     }
     public override bool Equals(object obj)
@@ -65,11 +66,11 @@ public struct Meld
             return false;
 
         Meld meld = (Meld)obj;
-        if (meld.tiles.Length != tiles.Length)
+        if (type != meld.type)
                 return false;
         for (int i = 0; i < meld.tiles.Length; i++)
         {
-            if (!meld.tiles[i].Equals(tiles[i]))
+            if (meld.tiles[i] != tiles[i])
                 return false;
         }
         return true;
@@ -100,7 +101,7 @@ public struct Meld
     {
         foreach (var tile in tiles)
         {
-            if (tile.Equals(compare))
+            if (tile == compare)
                 return true;
         }
         return false;
@@ -115,5 +116,17 @@ public struct Meld
         Triple,
         Quad,
         Sequence
+    }
+
+    public struct InputTile
+    {
+        public byte playerID;
+        public Tile tile;
+
+        public InputTile(byte playerID, Tile inputTile)
+        {
+            this.playerID = playerID;
+            this.tile = inputTile;
+        }
     }
 }

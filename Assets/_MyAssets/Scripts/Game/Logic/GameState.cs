@@ -65,14 +65,9 @@ public class GameState : IGameCallbacks
         byte countEnabledCallFlags = 0;
         for(int i = 0; i < m_players.Count; i++)
         {
-            if(i == (m_currentPlayerIndex + 1) % 4)
+            if(i != m_currentPlayerIndex)
             {
-                if(m_players[i].EnableHandCalls(tile, true))
-                    countEnabledCallFlags++;
-            }
-            else if(i != m_currentPlayerIndex)
-            {
-                if(m_players[i].EnableHandCalls(tile, false))
+                if(m_players[i].EnableHandCalls(tile, m_currentPlayerIndex))
                     countEnabledCallFlags++;
             }
         }

@@ -5,14 +5,16 @@ using UnityEngine;
 [RequireComponent(typeof(RectTransform))]
 public class MeldDisplay : MonoBehaviour
 {
-    List<TileDisplay> tiles;
+    public List<TileDisplay> tiles { get; private set; }
     public float totalLength;
+
+    public MeldDisplayPool displayPool { set; private get; }
     private void Awake()
     {
         tiles = new List<TileDisplay>();
     }
 
-    public void SetTiles(List<TileDisplay> tiles, TileDisplay inputTile, Meld.Type type)
+    public void SetTiles(List<TileDisplay> tiles, Tile inputTile, Meld.Type type)
     {
         this.tiles = tiles;
         Rect rect = (tiles[0].transform as RectTransform).rect;
@@ -31,5 +33,12 @@ public class MeldDisplay : MonoBehaviour
         }
     }
 
-
+    public void Clear()
+    {
+        foreach(var tile in tiles)
+        {
+            tile.SetTile(Tile.nullTile);
+        }
+        displayPool.ReturnMeldToPool(this);
+    }
 }
