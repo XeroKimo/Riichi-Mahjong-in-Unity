@@ -15,34 +15,34 @@ public class PlayerDisplay : MonoBehaviour//, IHandDisplayCallbacks
     public DiscardDisplayManager discardDisplay;
     public MeldDisplayManager meldDisplay;
 
-    void AddTileToHand(Tile tile, IPlayerActions player)
+    public void AddTileToHand(Tile tile, IPlayerActions player)
     {
         handDisplay.AddDrawnTile(tile, player);
     }
 
-    void RemoveTileFromHand(Tile tile)
+    public void RemoveTileFromHand(Tile tile)
     {
         handDisplay.RemoveTile(tile);
     }
 
-    void RemoveTileFromDiscard()
+    public void RemoveTileFromDiscard()
     {
         discardDisplay.RemoveLastDiscardedTile();
     }
 
-    void CreateMeld(Meld meld, IPlayerActions player)
+    public void CreateMeld(Meld meld, IPlayerActions player)
     {
-
+        meldDisplay.DisplayMeld(meld, player);
     }
 
-    void ResetDisplay(Hand hand, IPlayerActions player)
+    public void ResetDisplay(Hand hand, IPlayerActions player)
     {
-        handDisplay.Clear();
+        handDisplay.Clear(hand, player);
         meldDisplay.Clear();
         discardDisplay.ClearPile();
     }
 
-    void SetBounds(PlayerDisplayBounds displayBounds)
+    public void SetBounds(PlayerDisplayBounds displayBounds)
     {
         handDisplay.transform.SetParent(displayBounds.handBounds);
         discardDisplay.transform.SetParent(displayBounds.discardBounds);

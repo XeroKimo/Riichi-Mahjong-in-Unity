@@ -62,12 +62,17 @@ public class HandDisplayManager : MonoBehaviour
         rh.SetTile(temp);
     }
 
-    public void Clear()
+    public void Clear(Hand hand, IPlayerActions playerActions)
     {
         foreach(TileDisplay tile in m_tiles)
         {
             tile.SetTile(Tile.nullTile);
         }
         m_tiles.Clear();
+
+        foreach(Tile tile in hand.tiles)
+        {
+            AddTile(tile, playerActions);
+        }
     }
 }

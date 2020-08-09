@@ -208,6 +208,7 @@ public class TileHelpers
         {
             foreach(var pair in tilesBySuit)
             {
+                //Checks to see if a suit can use up all it's tiles to make melds
                 if(!MakeAllMelds(pair.Value))
                     failedSuits.Add(pair.Key);
                 else if(!MakeAllMelds2(pair.Value))
@@ -224,6 +225,7 @@ public class TileHelpers
         if(failedSuits.Count > 1)
             return new List<Tile>();
 
+        //Find what tiles we could use to win our hand
         return FindWaitingTiles(tilesBySuit[failedSuits[0]]);
     }
 
@@ -332,8 +334,12 @@ public class TileHelpers
         {
             for(int i = 0; i < Tile.numberCount; i++)
             {
+                //Make a copy of our hand
                 List<Tile> fakeHand = new List<Tile>(tiles);
+                //Add a tile to our hand
                 fakeHand.Add(new Tile(tiles[0].suit, (Tile.Face)i));
+
+                //If the newly added tile will complete our hand, add it to our waiting tiles
                 if(MakeAllMelds(fakeHand))
                 {
                     waitingTiles.Add(fakeHand[fakeHand.Count - 1]);
@@ -346,10 +352,14 @@ public class TileHelpers
         }
         else
         {
+            //If the suit we're waiting for is honors,
+            //Make a map for each face
             Dictionary<Tile.Face, List<Tile>> tileMap = ArrangeTilesByValue(tiles);
             foreach(var pair in tileMap)
             {
+                //For each honor in our hand, copy our hand
                 List<Tile> fakeHand = new List<Tile>(tiles);
+                //Add an honor 
                 fakeHand.Add(new Tile(Tile.Suit.Honor, pair.Value[0].face));
                 if(MakeAllMelds(fakeHand))
                 {

@@ -14,8 +14,8 @@ public class TileDisplayPool : MonoBehaviour
         m_tilePool = new Stack<TileDisplay>();
         for(int i = 0; i < tileCount; i++)
         {
-            m_tilePool.Push(Instantiate(tilePrefab, transform));
-            m_tilePool.Peek().displayPool = this;
+            TileDisplay tile = Instantiate(tilePrefab, transform);
+            tile.displayPool = this;
         }
     }
 

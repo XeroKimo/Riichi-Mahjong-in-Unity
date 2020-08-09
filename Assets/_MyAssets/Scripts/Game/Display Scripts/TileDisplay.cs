@@ -13,6 +13,10 @@ public class TileDisplay : MonoBehaviour, IPointerClickHandler, ISelectHandler
 
     public void Awake()
     {
+    }
+
+    public void Start()
+    {
         SetTile(Tile.nullTile);
     }
 
