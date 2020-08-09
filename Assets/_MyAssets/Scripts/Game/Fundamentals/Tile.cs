@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEditor.UI;
 using UnityEngine;
 
+//Version 0.3
+
 public struct Tile
 {
     byte m_tileID;
@@ -83,4 +85,18 @@ public struct Tile
     public const byte windMax = 3;
     public const byte dragonMin = 4;
     public const byte dragonMax = 7;
+}
+
+public struct DiscardedTile
+{
+    public readonly Tile tile;
+    public readonly byte originalOwnerID;
+
+    public const byte noOwnerID = byte.MaxValue;
+
+    public DiscardedTile(Tile tile, byte originalOwnerID)
+    {
+        this.tile = tile;
+        this.originalOwnerID = originalOwnerID;
+    }
 }

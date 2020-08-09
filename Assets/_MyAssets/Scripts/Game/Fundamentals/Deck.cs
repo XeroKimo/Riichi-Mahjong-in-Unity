@@ -2,15 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//Version 0.3
+
 public class Deck
 {
     const int wallHeight = 2;
-    protected int m_wallLength;
+    const int wallLength = 17;
 
     List<Tile> m_tiles;
-    int m_lastTileIndex;
-    int m_lastPlayableTileIndex;
     int m_currentTileIndex;
+    int m_lastTileIndex;
+    int m_deadWallStartIndex;
+    int m_doraWallStartIndex;
+
+    public Deck()
+    {
+        m_tiles = new List<Tile>();
+        BuildDeck();
+    }
 
     public void ShuffleDeck()
     {
@@ -30,15 +39,18 @@ public class Deck
         int D12 = Random.Range(0, 6) + Random.Range(0, 6) + 2;
         int playerTraverse = D12 % playerCount;
         int wallTraverse = D12;
-        int startingWall = normalizedDealerIndex * m_wallLength * wallHeight;
-        int startingTile = (startingWall + (playerTraverse * m_wallLength * wallHeight) + wallTraverse) % m_tiles.Count;
+        int startingWall = normalizedDealerIndex * wallLength * wallHeight;
+        int startingTile = (startingWall + (playerTraverse * wallLength * wallHeight) + wallTraverse) % m_tiles.Count;
 
         m_currentTileIndex = startingTile;
-        m_lastPlayableTileIndex = startingTile - (7 * wallHeight);
-        m_lastTileIndex = startingTile - (1 * wallHeight);
+        m_deadWallStartIndex = startingTile - (7 * wallHeight);
+        m_doraWallStartIndex = m_deadWallStartIndex + 2 * wallHeight;
+        m_lastTileIndex = m_deadWallStartIndex - 1;
 
-        if(m_lastPlayableTileIndex < 0)
-            m_lastPlayableTileIndex += m_tiles.Count;
+        if(m_deadWallStartIndex < 0)
+            m_deadWallStartIndex += m_tiles.Count;
+        if(m_doraWallStartIndex < 0)
+            m_doraWallStartIndex += m_tiles.Count;
         if(m_lastTileIndex < 0)
             m_lastTileIndex += m_tiles.Count;
     }
@@ -46,12 +58,11 @@ public class Deck
     public Tile DrawTile()
     {
         Tile output;
-        if(m_currentTileIndex == m_lastPlayableTileIndex)
+        if(m_currentTileIndex == m_lastTileIndex)
             return Tile.nullTile;
 
         output = m_tiles[m_currentTileIndex++];
         m_currentTileIndex = m_currentTileIndex % m_tiles.Count;
-        //Debug.Log(output.suit + " " + output.face);
 
         return output;
     }
@@ -62,43 +73,31 @@ public class Deck
             return Tile.nullTile;
 
         output = m_tiles[m_lastTileIndex--];
-        m_lastPlayableTileIndex--;
+        m_deadWallStartIndex = (m_deadWallStartIndex + 1) %  m_tiles.Count;
 
         if(m_lastTileIndex < 0)
             m_lastTileIndex += m_tiles.Count;
-        if(m_lastPlayableTileIndex < 0)
-            m_lastPlayableTileIndex += m_tiles.Count;
 
         return output;
-    }
-    public List<Tile> DrawMultipleTiles(int count)
-    {
-        List<Tile> amountToDraw = new List<Tile>();
-        for(int i = 0; i < count; i++)
-            amountToDraw.Add(DrawTile());
-        return amountToDraw;
     }
 
     public bool IsEmpty()
     {
-        return m_currentTileIndex == m_lastPlayableTileIndex;
+        return m_currentTileIndex == m_lastTileIndex;
     }
     public int GetRemainingTileCount()
     {
-        int count = m_lastPlayableTileIndex - m_currentTileIndex;
+        int count = m_lastTileIndex - m_currentTileIndex;
         return (count < 0) ? count + m_tiles.Count : count;
     }
-    public List<Tile> GetDeadWall()
+    public List<Tile> GetDoraTiles()
     {
         List<Tile> tiles = new List<Tile>();
-        int deadWallCount = m_lastTileIndex - m_lastPlayableTileIndex;
+        const int doraWall = 10;
 
-        if(deadWallCount < 0)
-            deadWallCount += m_tiles.Count;
-
-        for(int i = 0; i < deadWallCount; i++)
+        for(int i = 0; i < doraWall; i++)
         {
-            tiles.Add(m_tiles[(m_lastPlayableTileIndex + i) % m_tiles.Count]);
+            tiles.Add(m_tiles[(m_doraWallStartIndex + i) % m_tiles.Count]);
         }
 
         return tiles;
@@ -108,7 +107,7 @@ public class Deck
     {
         for(int j = 1; j < 4; j++)
         {
-            for(int i = 0; i < (int)Tile.numberCount; i++)
+            for(int i = 0; i < Tile.numberCount; i++)
             {
                 SpawnTiles((Tile.Suit)j, i);
             }
@@ -126,12 +125,5 @@ public class Deck
 
             m_tiles.Add(tile);
         }
-    }
-
-    public Deck()
-    {
-        m_tiles = new List<Tile>();
-        m_wallLength = 17;
-        BuildDeck();
     }
 }

@@ -4,32 +4,25 @@ using UnityEngine;
 
 public class DiscardPile
 {
-    List<Tile> m_tiles;
+    List<DiscardedTile> m_tiles;
 
     public DiscardPile()
     {
-        m_tiles = new List<Tile>();
+        m_tiles = new List<DiscardedTile>();
     }
     private void Awake()
     {
-        m_tiles = new List<Tile>();
+        m_tiles = new List<DiscardedTile>();
     }
 
-    public void AddTile(Tile tile)
+    public void AddTile(DiscardedTile tile)
     {
         m_tiles.Add(tile);
     }
 
-    public Tile PeekLastDiscardedTile()
+    public DiscardedTile GetLastDiscardedTile()
     {
         return m_tiles[m_tiles.Count - 1];
-    }
-
-    public Tile RetrieveLastDiscardedTile()
-    {
-        Tile output = m_tiles[m_tiles.Count - 1];
-        m_tiles.Remove(output);
-        return output;
     }
 
     public void Reset()

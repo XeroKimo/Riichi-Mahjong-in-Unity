@@ -3,12 +3,38 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//Version 0.3
+
 public struct Meld
 {
-    public Tile[] tiles { get; private set; }
-    public Type type { get; private set; }
-    public bool open { get; private set; }
-    public InputTile input { get; private set; }
+    public readonly Tile[] tiles;
+    public readonly DiscardedTile discardedTile;
+
+    public readonly Type type;
+    public readonly bool isOpen;
+
+    public Meld(Tile[] tiles)
+    {
+        this.tiles = tiles;
+        discardedTile = new DiscardedTile(Tile.nullTile, DiscardedTile.noOwnerID);
+
+        this.type = Type.Pair;
+        this.isOpen = false;
+
+        this.type = DetermineType(tiles);
+
+        if(type == Type.Sequence)
+        {
+            if(!IsSequenceOrdered())
+                OrderSequence();
+        }
+    }
+
+    public Meld(Tile[] tiles, DiscardedTile discardedTile, bool isOpen) : this(tiles)
+    {
+        this.discardedTile = discardedTile;
+        this.isOpen = isOpen;
+    }
 
     private Type DetermineType(Tile[] tiles)
     {
@@ -43,22 +69,6 @@ public struct Meld
                 }
             }
         }
-    }
-
-    public Meld(Tile[] tiles, bool open, InputTile inputTile)
-    {
-        this.tiles = tiles;
-        this.type = Type.Pair;
-        this.open = open;
-        this.input = inputTile;
-
-        this.type = DetermineType(this.tiles);
-        if(type == Type.Sequence)
-            if(!IsSequenceOrdered())
-                OrderSequence();
-    }
-    public Meld(List<Tile> tiles, bool open, InputTile inputTile) : this(tiles.ToArray(), open, inputTile)
-    {
     }
     public override bool Equals(object obj)
     {
@@ -107,8 +117,6 @@ public struct Meld
         return false;
     }
 
-
-
     public static readonly Meld emptyMeld = new Meld();
     public enum Type
     {
@@ -116,17 +124,5 @@ public struct Meld
         Triple,
         Quad,
         Sequence
-    }
-
-    public struct InputTile
-    {
-        public byte playerID;
-        public Tile tile;
-
-        public InputTile(byte playerID, Tile inputTile)
-        {
-            this.playerID = playerID;
-            this.tile = inputTile;
-        }
     }
 }
