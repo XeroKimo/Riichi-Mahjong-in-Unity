@@ -16,6 +16,17 @@ public class TileChecks : MonoBehaviour
         Debug.Assert(tile.face == Tile.Face.East, "Expects " + Tile.Face.East + " Got " + tile.face);
         Debug.Assert(tile.suit == Tile.Suit.Honor);
         Debug.Assert((3 << 6) == 0b11000000, "Expects " + 0b11000000 + " Got " + (3 << 6));
+
+        HashSet<Meld.Type> test = new HashSet<Meld.Type>();
+        test.Add(Meld.Type.Pair);
+        test.Add(Meld.Type.Pair);
+        test.Add(Meld.Type.Triple);
+        test.Add(Meld.Type.Pair);
+
+        foreach(var val in test)
+        {
+            Debug.Log(val.ToString());
+        }
     }
 
     // Update is called once per frame

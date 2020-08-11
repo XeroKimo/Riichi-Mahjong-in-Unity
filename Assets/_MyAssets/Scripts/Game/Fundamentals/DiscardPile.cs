@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//Version: 0.32
 public class DiscardPile
 {
     List<DiscardedTile> m_tiles;

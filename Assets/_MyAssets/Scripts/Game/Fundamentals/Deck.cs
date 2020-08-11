@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-//Version 0.3
+//Version: 0.32
 
 public class Deck
 {

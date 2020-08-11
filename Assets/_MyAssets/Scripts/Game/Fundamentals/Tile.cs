@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEditor.UI;
 using UnityEngine;
 
-//Version 0.3
-
+//Version: 0.32
 public struct Tile
 {
     byte m_tileID;

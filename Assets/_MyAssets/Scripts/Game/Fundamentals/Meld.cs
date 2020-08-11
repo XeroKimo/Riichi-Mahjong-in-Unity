@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
-//Version 0.3
+//Version: 0.32
 
 public struct Meld
 {
@@ -84,6 +85,15 @@ public struct Meld
                 return false;
         }
         return true;
+    }
+
+    public static bool operator==(Meld lh, Meld rh)
+    {
+        return lh.Equals(rh);
+    }
+    public static bool operator !=(Meld lh, Meld rh)
+    {
+        return !lh.Equals(rh);
     }
     public override int GetHashCode()
     {
