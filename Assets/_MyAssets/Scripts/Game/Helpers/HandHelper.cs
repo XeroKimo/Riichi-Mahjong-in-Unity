@@ -17,26 +17,14 @@ public static class HandHelper
         SameFace
     }
 
-    //Gets the remaining tiles required to be able to have a complete hand
-    //Only works if you're in Tenpai
-    public static List<Tile> GetRemainingTilesInTenpai(Hand hand, out bool inTenpai)
+    //Find possible 14th tiles to have a complete hand
+    public static List<Tile> FindWaitingTiles(Hand hand)
     {
-        inTenpai = false;
         Dictionary<Tile.Suit, List<Tile>> arrangedTiles = TileHelper.ArrangeTilesBySuit(hand.tiles);
         HashSet<Tile.Suit> failedSuits = new HashSet<Tile.Suit>();
 
         Dictionary<Meld.Type, List<Meld>> allMeldsMade = MeldHelper.ArrangeMeldsByType(hand.melds);
         List<Tile> allRemainingTiles = new List<Tile>();
-
-        for(int i = 0; i < 4; i++)
-        {
-            Meld.Type type = (Meld.Type)i;
-            Tile.Suit suit = (Tile.Suit)i;
-            if(!allMeldsMade.ContainsKey(type))
-                allMeldsMade[type] = new List<Meld>();
-
-        }
-
 
         //NOTES:
         //Remaining tiles will be used to quickly determine if I'm missing a pair, just use the last tile not in a meld
@@ -67,8 +55,6 @@ public static class HandHelper
             return new List<Tile>();
         }
 
-        inTenpai = true;
-
         if(pairCount == 2)
         {
             List<Tile> tilesNeeded = new List<Tile>();
@@ -87,6 +73,12 @@ public static class HandHelper
         failedSuits.CopyTo(failedSuitsArray, 0, 1);
         return FindAllPossibleMissingTiles(arrangedTiles[failedSuitsArray[0]]);
     }
+
+    //Groups the remaining tiles into melds to process
+    //public static Dictionary<Meld.Type, List<Meld>> CompleteHand(Hand hand)
+    //{
+
+    //}
 
     //Tries all search orders and if none can make all melds, return the one closest to making all melds
     private static bool MakeAllMeldsBestResult(List<Tile> tiles, out Dictionary<Meld.Type, List<Meld>> meldsMade, out List<Tile> remainingTiles)

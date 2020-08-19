@@ -5,17 +5,18 @@ using UnityEngine;
 
 //Version: 0.32
 
-public static class MeldHelper 
+public static class MeldHelper
 {
     public static Dictionary<Meld.Type, List<Meld>> ArrangeMeldsByType(List<Meld> melds)
     {
         Dictionary<Meld.Type, List<Meld>> arrangedMelds = new Dictionary<Meld.Type, List<Meld>>();
+        arrangedMelds[Meld.Type.Pair] = new List<Meld>();
+        arrangedMelds[Meld.Type.Triple] = new List<Meld>();
+        arrangedMelds[Meld.Type.Quad] = new List<Meld>();
+        arrangedMelds[Meld.Type.Sequence] = new List<Meld>();
 
         foreach(Meld meld in melds)
         {
-            if(!arrangedMelds.ContainsKey(meld.type))
-                arrangedMelds[meld.type] = new List<Meld>();
-
             arrangedMelds[meld.type].Add(meld);
         }
 
@@ -40,47 +41,30 @@ public static class MeldHelper
         return MakeTriple(new DiscardedTile(type, DiscardedTile.noOwnerID), tiles, out createdMeld, false);
     }
 
-    public static bool MakeTriple(DiscardedTile type, List<Tile> tiles, out Meld createdMeld, bool isOpen = true)
+    public static bool MakeTriple(DiscardedTile type, List<Tile> tiles, out Meld createdMeld)
     {
-        List<Tile> matchedTiles = TileHelper.GetAllTilesOfType(type.tile, tiles);
-        if(matchedTiles.Count < 3)
-        {
-            createdMeld = Meld.emptyMeld;
-            return false;
-        }
-
-        createdMeld = new Meld(matchedTiles.GetRange(0, 3).ToArray(), type, isOpen);
-        return true;
-    }
+        return MakeTriple(type, tiles, out createdMeld, false);
+    }    
 
     public static bool MakeQuad(Tile type, List<Tile> tiles, out Meld createdMeld)
     {
         return MakeQuad(new DiscardedTile(type, DiscardedTile.noOwnerID), tiles, out createdMeld, false);
     }
 
-    public static bool MakeQuad(DiscardedTile type, List<Tile> tiles, out Meld createdMeld, bool isOpen = true)
+    public static bool MakeQuad(DiscardedTile type, List<Tile> tiles, out Meld createdMeld)
     {
-        List<Tile> matchedTiles = TileHelper.GetAllTilesOfType(type.tile, tiles);
-        if(matchedTiles.Count < 4)
-        {
-            createdMeld = Meld.emptyMeld;
-            return false;
-        }
-
-        createdMeld = new Meld(matchedTiles.ToArray(), type, isOpen);
-        return true;
+        return MakeQuad(type, tiles, out createdMeld, true);
     }
 
     public static bool MakeQuad(Meld triplet, Tile tile, out Meld createdMeld)
     {
-        createdMeld = Meld.emptyMeld;
-
-        if(triplet == Meld.emptyMeld)
+        if(triplet == Meld.emptyMeld ||
+            triplet.type != Meld.Type.Triple ||
+            triplet.tiles[0] != tile)
+        {
+            createdMeld = Meld.emptyMeld;
             return false;
-        if(triplet.type != Meld.Type.Triple)
-            return false;
-        if(triplet.tiles[0] != tile)
-            return false;
+        }
 
         List<Tile> tileArray = new List<Tile>(triplet.tiles);
         tileArray.Add(tile);
@@ -113,7 +97,7 @@ public static class MeldHelper
         return MakePossibleSequences(new DiscardedTile(pivotTile, DiscardedTile.noOwnerID), arrangedTiles, out createdMelds, false);
     }
 
-    public static bool MakePossibleSequences(DiscardedTile pivotTile, List<Tile> tiles, out List<Meld> createdMelds, bool isOpen = true)
+    public static bool MakePossibleSequences(DiscardedTile pivotTile, List<Tile> tiles, out List<Meld> createdMelds)
     {
         Dictionary<Tile.Suit, List<Tile>> tilesBySuit = TileHelper.ArrangeTilesBySuit(tiles);
 
@@ -123,10 +107,36 @@ public static class MeldHelper
             return false;
         }
 
-        return MakePossibleSequences(pivotTile, TileHelper.ArrangeTilesByFace(tilesBySuit[pivotTile.tile.suit]), out createdMelds, isOpen);
+        return MakePossibleSequences(pivotTile, TileHelper.ArrangeTilesByFace(tilesBySuit[pivotTile.tile.suit]), out createdMelds, true);
     }
 
-    public static bool MakePossibleSequences(DiscardedTile pivotTile, Dictionary<Tile.Face, List<Tile>> arrangedTiles, out List<Meld> createdMelds, bool isOpen = true)
+    private static bool MakeTriple(DiscardedTile type, List<Tile> tiles, out Meld createdMeld, bool isOpen)
+    {
+        List<Tile> matchedTiles = TileHelper.GetAllTilesOfType(type.tile, tiles);
+        if(matchedTiles.Count < 3)
+        {
+            createdMeld = Meld.emptyMeld;
+            return false;
+        }
+
+        createdMeld = new Meld(matchedTiles.GetRange(0, 3).ToArray(), type, isOpen);
+        return true;
+    }
+
+    private static bool MakeQuad(DiscardedTile type, List<Tile> tiles, out Meld createdMeld, bool isOpen)
+    {
+        List<Tile> matchedTiles = TileHelper.GetAllTilesOfType(type.tile, tiles);
+        if(matchedTiles.Count < 4)
+        {
+            createdMeld = Meld.emptyMeld;
+            return false;
+        }
+
+        createdMeld = new Meld(matchedTiles.ToArray(), type, isOpen);
+        return true;
+    }
+
+    private static bool MakePossibleSequences(DiscardedTile pivotTile, Dictionary<Tile.Face, List<Tile>> arrangedTiles, out List<Meld> createdMelds, bool isOpen)
     {
         createdMelds = new List<Meld>();
 

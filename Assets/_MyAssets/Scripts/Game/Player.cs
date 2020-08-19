@@ -60,7 +60,7 @@ public class Player : MonoBehaviour
     {
         m_hand.tiles.Remove(tile);
 
-        m_waitingTiles = HandHelper.GetRemainingTilesInTenpai(m_hand, out bool inTenpai);
+        m_waitingTiles = HandHelper.FindWaitingTiles(m_hand);
     }
 
     public void SkipHandCalls()
@@ -113,6 +113,13 @@ public class Player : MonoBehaviour
         SkipHandCalls();
     }
 
+    public void ResetHand(List<Tile> tiles)
+    {
+        m_hand.tiles = tiles;
+        m_hand.melds.Clear();
+        m_waitingTiles = HandHelper.FindWaitingTiles(m_hand);
+    }
+
     public bool EnableHandCalls(DiscardedTile discardedTile, bool checkChi)
     {
         List<Tile> potentialHand = new List<Tile>(m_hand.tiles);
@@ -124,13 +131,6 @@ public class Player : MonoBehaviour
         EnableRon(discardedTile);
 
         return handCalls != HandCall.None;
-    }
-
-    public void ResetHand(List<Tile> tiles)
-    {
-        m_hand.tiles = tiles;
-        m_hand.melds.Clear();
-        m_waitingTiles = HandHelper.GetRemainingTilesInTenpai(m_hand, out bool inTenpai);
     }
 
     private void EnableHandCalls(Tile drawnTile)
