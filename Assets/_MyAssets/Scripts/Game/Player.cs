@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-//Version: 0.32
+//Version: 0.34
 
-public class Player : MonoBehaviour
+public class Player
 {
     [Flags]
     public enum HandCall
@@ -39,15 +39,23 @@ public class Player : MonoBehaviour
     }
 
     Hand m_hand;
-    public int points;
-    public HandCall handCalls;
-    public PotentialMelds potentialMelds;
-    private List<Tile> m_waitingTiles = new List<Tile>();
+    HandCall m_handCalls;
+    //Cached melds for hand call purposes
+    PotentialMelds m_potentialMelds;
+    //List of possible tiles that will complete the hand
+    List<Tile> m_waitingTiles;
 
-    void Awake()
+    public int points;
+    public Hand hand { get => m_hand; } 
+    public HandCall handCalls { get => m_handCalls; }
+    public PotentialMelds potentialMelds { get => m_potentialMelds; }
+    public List<Tile> waitingTiles { get => m_waitingTiles; }
+
+    public Player()
     {
         m_hand.Init();
-        potentialMelds.Init();
+        m_potentialMelds.Init();
+        m_waitingTiles = new List<Tile>();
     }
 
     public void AddTile(Tile tile)
@@ -65,15 +73,15 @@ public class Player : MonoBehaviour
 
     public void SkipHandCalls()
     {
-        handCalls = HandCall.None;
-        potentialMelds.Clear();
+        m_handCalls = HandCall.None;
+        m_potentialMelds.Clear();
     }
 
     public void CallChi(int index)
     {
         CheckFlag(HandCall.Chi);
 
-        AddMeld(potentialMelds.chiMelds[index]);
+        AddMeld(m_potentialMelds.chiMelds[index]);
 
         SkipHandCalls();
     }
@@ -81,7 +89,7 @@ public class Player : MonoBehaviour
     public void CallPon()
     {
         CheckFlag(HandCall.Pon);
-        AddMeld(potentialMelds.ponMeld);
+        AddMeld(m_potentialMelds.ponMeld);
 
         SkipHandCalls();
     }
@@ -91,10 +99,10 @@ public class Player : MonoBehaviour
         CheckFlag(HandCall.Kan);
         CheckFlag(HandCall.LateKan);
 
-        if((handCalls & HandCall.LateKan) == HandCall.LateKan)
-            m_hand.melds.RemoveAll((Meld compare) => { return compare.tiles[0] == potentialMelds.kanMeld.tiles[0]; });
+        if((m_handCalls & HandCall.LateKan) == HandCall.LateKan)
+            m_hand.melds.RemoveAll((Meld compare) => { return compare.tiles[0] == m_potentialMelds.kanMeld.tiles[0]; });
 
-        AddMeld(potentialMelds.kanMeld);
+        AddMeld(m_potentialMelds.kanMeld);
 
         SkipHandCalls();
     }
@@ -130,7 +138,7 @@ public class Player : MonoBehaviour
         EnableOpenKan(discardedTile, potentialHand);
         EnableRon(discardedTile);
 
-        return handCalls != HandCall.None;
+        return m_handCalls != HandCall.None;
     }
 
     private void EnableHandCalls(Tile drawnTile)
@@ -145,56 +153,56 @@ public class Player : MonoBehaviour
         if(potentialHand.Count < 3)
             return;
 
-        if(MeldHelper.MakePossibleSequences(discardedTile, potentialHand, out potentialMelds.chiMelds))
-            handCalls |= HandCall.Chi;
+        if(MeldHelper.MakePossibleSequences(discardedTile, potentialHand, out m_potentialMelds.chiMelds))
+            m_handCalls |= HandCall.Chi;
     }
     private void EnablePon(DiscardedTile discardedTile, List<Tile> potentialHand)
     {
         if(potentialHand.Count < 3)
             return;
 
-        if(MeldHelper.MakeTriple(discardedTile, potentialHand, out potentialMelds.ponMeld))
-            handCalls |= HandCall.Pon;
+        if(MeldHelper.MakeTriple(discardedTile, potentialHand, out m_potentialMelds.ponMeld))
+            m_handCalls |= HandCall.Pon;
     }
     private void EnableOpenKan(DiscardedTile discardedTile, List<Tile> potentialHand)
     {
         if(potentialHand.Count < 4)
             return;
 
-        if(MeldHelper.MakeQuad(discardedTile, potentialHand, out potentialMelds.kanMeld))
-            handCalls |= HandCall.Kan;
+        if(MeldHelper.MakeQuad(discardedTile, potentialHand, out m_potentialMelds.kanMeld))
+            m_handCalls |= HandCall.Kan;
     }
     private void EnableRon(DiscardedTile discardedTile)
     {
         if(m_waitingTiles.Contains(discardedTile.tile))
-            handCalls |= HandCall.Ron;
+            m_handCalls |= HandCall.Ron;
     }
     private void EnableClosedKan(Tile drawnTile)
     {
         if(m_hand.tiles.Count < 4)
             return;
 
-        if(MeldHelper.MakeQuad(drawnTile, m_hand.tiles, out potentialMelds.kanMeld))
+        if(MeldHelper.MakeQuad(drawnTile, m_hand.tiles, out m_potentialMelds.kanMeld))
         {
-            handCalls |= HandCall.Kan;
+            m_handCalls |= HandCall.Kan;
         }
     }
     private void EnableLateKan(Tile drawnTile)
     {
         Meld meld = m_hand.melds.Find((Meld compare) => { return compare.tiles[0] == drawnTile; });
 
-        if(MeldHelper.MakeQuad(meld, drawnTile, out potentialMelds.kanMeld))
-            handCalls |= HandCall.LateKan;
+        if(MeldHelper.MakeQuad(meld, drawnTile, out m_potentialMelds.kanMeld))
+            m_handCalls |= HandCall.LateKan;
     }
     private void EnableTsumo(Tile drawnTile)
     {
         if(m_waitingTiles.Contains(drawnTile))
-            handCalls |= HandCall.Tsumo;
+            m_handCalls |= HandCall.Tsumo;
     }
 
     private void CheckFlag(HandCall value)
     {
-        Debug.Assert((handCalls & value) == value, value.ToString() + " flag is not set");
+        Debug.Assert((m_handCalls & value) == value, value.ToString() + " flag is not set");
     }
 
     private void AddMeld(Meld meld)
