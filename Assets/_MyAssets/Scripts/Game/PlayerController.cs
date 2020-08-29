@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
 
-//Version: 0.34
+//Version: 0.35
 
 public abstract class PlayerController : MonoBehaviour
 {
@@ -28,6 +28,8 @@ public abstract class PlayerController : MonoBehaviour
     public void RemoveTile(Tile tile)
     {
         //Ask game state if it's my turn
+        if(!gameState.IsMyTurn(playerID))
+            return;
 
         m_playerData.RemoveTile(tile);
 
@@ -36,57 +38,57 @@ public abstract class PlayerController : MonoBehaviour
         OnTileDiscarded(discardedTile);
 
         //Tell game state of discarded tile
+        gameState.OnPlayerDiscarded(discardedTile);
     }
 
-    public void SkipHandCalls()
+    public void RequestSkipHandCalls()
     {
-        m_playerData.SkipHandCalls();
-        //Tell game state of hand call
+        //Tell game state to request hand call
+        SkipHandCalls();
+        OnHandCallRequested(Player.HandCall.None);
+        gameState.RequestHandCall(this, Player.HandCall.None, () => {});
     }
 
-    public void CallChi(int index)
+    public void RequestChi(int index)
     {
-        m_playerData.CallChi(index);
-        //Add meld to display
-        //Tell game state of hand call
+
+        //Tell game state to request hand call
+        OnHandCallRequested(Player.HandCall.Chi);
+        gameState.RequestHandCall(this, Player.HandCall.Tsumo, () => { CallChi(index); });
     }
 
-    public void CallPon()
+    public void RequestPon()
     {
-        m_playerData.CallPon();
-        //Add meld to display
-        //Tell game state of hand call
+        //Tell game state to request hand call
+        OnHandCallRequested(Player.HandCall.Pon);
+        gameState.RequestHandCall(this, Player.HandCall.Tsumo, CallPon);
     }
 
-    public void CallKan()
+    public void RequestKan()
     {
-        Player.HandCall oldHandCalls = m_playerData.handCalls;
-        m_playerData.CallKan();
-
-        //Add meld to display
-        //Tell game state of hand call
-        //Check if late kan flag was set, if set, tell game state
-        //That was the hand call we used instead of normal kan flag
+        //Tell game state to request hand call
+        OnHandCallRequested(Player.HandCall.Kan);
+        gameState.RequestHandCall(this, Player.HandCall.Tsumo, CallKan);
     }
 
-    public void CallRon()
+    public void RequestRon()
     {
-        m_playerData.CallRon();
-        //Tell game state of hand call
+        //Tell game state to request hand call
+        OnHandCallRequested(Player.HandCall.Ron);
+        gameState.RequestHandCall(this, Player.HandCall.Tsumo, CallRon);
     }
 
-    public void CallTsumo()
+    public void RequestTsumo()
     {
-        if((m_playerData.handCalls & Player.HandCall.Tsumo) != Player.HandCall.Tsumo)
-            return;
-
-        m_playerData.CallTsumo();
-        //Tell game state of hand call
+        //Tell game state to request hand call
+        OnHandCallRequested(Player.HandCall.Tsumo);
+        gameState.RequestHandCall(this, Player.HandCall.Tsumo, CallTsumo);
     }
 
     public void ResetHand(List<Tile> tiles)
     {
         m_playerData.ResetHand(tiles);
+        //Update hand UI
         OnHandReset(tiles);
     }
 
@@ -98,8 +100,55 @@ public abstract class PlayerController : MonoBehaviour
         return enabledHandCalls;
     }
 
+    private void SkipHandCalls()
+    {
+        m_playerData.SkipHandCalls();
+        //Tell game state of hand call
+    }
+    
+    private void CallChi(int index)
+    {
+        m_playerData.CallChi(index);
+        //Add meld to display
+        //Tell game state of hand call
+    }
+    
+    private void CallPon()
+    {
+        m_playerData.CallPon();
+        //Add meld to display
+        //Tell game state of hand call
+    }
+    
+    private void CallKan()
+    {
+        Player.HandCall oldHandCalls = m_playerData.handCalls;
+        m_playerData.CallKan();
+
+        //Add meld to display
+        //Tell game state of hand call
+        //Check if late kan flag was set, if set, tell game state
+        //That was the hand call we used instead of normal kan flag
+    }
+    
+    private void CallRon()
+    {
+        m_playerData.CallRon();
+        //Tell game state of hand call
+    }
+    
+    private void CallTsumo()
+    {
+        if((m_playerData.handCalls & Player.HandCall.Tsumo) != Player.HandCall.Tsumo)
+            return;
+
+        m_playerData.CallTsumo();
+        //Tell game state of hand call
+    }
+
     protected abstract void OnTileAdded(Tile tile);
     protected abstract void OnTileDiscarded(DiscardedTile discardedTile);
     protected abstract void OnHandCallEnabled(Player.HandCall handCalls);
     protected abstract void OnHandReset(List<Tile> tiles);
+    protected abstract void OnHandCallRequested(Player.HandCall handCall);
 }
