@@ -54,44 +54,44 @@ public abstract class PlayerController : MonoBehaviour
     public void RequestSkipHandCalls()
     {
         //Tell game state to request hand call
-        OnHandCallRequested(Player.HandCall.None);
-        gameState.RequestHandCall(this, Player.HandCall.None, () => {});
+        OnHandCallRequested(HandCall.None);
+        gameState.RequestHandCall(this, HandCall.None, () => {});
     }
 
     public void RequestChi(int index)
     {
 
         //Tell game state to request hand call
-        OnHandCallRequested(Player.HandCall.Chi);
-        gameState.RequestHandCall(this, Player.HandCall.Chi, () => { CallChi(index); });
+        OnHandCallRequested(HandCall.Chi);
+        gameState.RequestHandCall(this, HandCall.Chi, () => { CallChi(index); });
     }
 
     public void RequestPon()
     {
         //Tell game state to request hand call
-        OnHandCallRequested(Player.HandCall.Pon);
-        gameState.RequestHandCall(this, Player.HandCall.Pon, CallPon);
+        OnHandCallRequested(HandCall.Pon);
+        gameState.RequestHandCall(this, HandCall.Pon, CallPon);
     }
 
     public void RequestKan()
     {
         //Tell game state to request hand call
-        OnHandCallRequested(Player.HandCall.Kan);
-        gameState.RequestHandCall(this, (m_playerData.handCalls & Player.HandCall.Kan) | (m_playerData.handCalls & Player.HandCall.LateKan), CallKan);
+        OnHandCallRequested(HandCall.Kan);
+        gameState.RequestHandCall(this, (m_playerData.handCalls & HandCall.Kan) | (m_playerData.handCalls & HandCall.LateKan), CallKan);
     }
 
     public void RequestRon()
     {
         //Tell game state to request hand call
-        OnHandCallRequested(Player.HandCall.Ron);
-        gameState.RequestHandCall(this, Player.HandCall.Ron, () => { });
+        OnHandCallRequested(HandCall.Ron);
+        gameState.RequestHandCall(this, HandCall.Ron, () => { });
     }
 
     public void RequestTsumo()
     {
         //Tell game state to request hand call
-        OnHandCallRequested(Player.HandCall.Tsumo);
-        gameState.RequestHandCall(this, Player.HandCall.Tsumo, () => { });
+        OnHandCallRequested(HandCall.Tsumo);
+        gameState.RequestHandCall(this, HandCall.Tsumo, () => { });
     }
 
     public void ResetHand(List<Tile> tiles)
@@ -109,7 +109,7 @@ public abstract class PlayerController : MonoBehaviour
         m_playerData.EnableOpenKan(discardedTile);
         m_playerData.EnableRon(discardedTile);
 
-        bool enabledHandCalls = m_playerData.handCalls != Player.HandCall.None;
+        bool enabledHandCalls = m_playerData.handCalls != HandCall.None;
         if(enabledHandCalls)
             OnHandCallEnabled(m_playerData.handCalls);
         return enabledHandCalls;
@@ -118,7 +118,7 @@ public abstract class PlayerController : MonoBehaviour
     public bool CanStealLateKan(DiscardedTile tile)
     {
         m_playerData.EnableRon(tile);
-        return (m_playerData.handCalls & Player.HandCall.Ron) == Player.HandCall.Ron;
+        return (m_playerData.handCalls & HandCall.Ron) == HandCall.Ron;
     }
 
     public void NotifyMeldCreated()
@@ -144,7 +144,7 @@ public abstract class PlayerController : MonoBehaviour
     private void CallKan()
     {
         Meld meld = m_playerData.potentialMelds.kanMeld;
-        if((m_playerData.handCalls & Player.HandCall.LateKan) == Player.HandCall.LateKan)
+        if((m_playerData.handCalls & HandCall.LateKan) == HandCall.LateKan)
             m_playerData.hand.melds.RemoveAll((Meld compare) => { return compare.tiles[0] == m_playerData.potentialMelds.kanMeld.tiles[0] && compare.type == Meld.Type.Triple; });
 
         m_playerData.AddMeld(meld);
@@ -153,8 +153,8 @@ public abstract class PlayerController : MonoBehaviour
     public abstract void OnCanStealLateKan(DiscardedTile tile);
     protected abstract void OnTileAdded(Tile tile);
     protected abstract void OnTileDiscarded(DiscardedTile discardedTile);
-    protected abstract void OnHandCallEnabled(Player.HandCall handCalls);
+    protected abstract void OnHandCallEnabled(HandCall handCalls);
     protected abstract void OnHandReset(List<Tile> tiles);
-    protected abstract void OnHandCallRequested(Player.HandCall handCall);
+    protected abstract void OnHandCallRequested(HandCall handCall);
     protected abstract void OnMeldCreated(Meld meld);
 }

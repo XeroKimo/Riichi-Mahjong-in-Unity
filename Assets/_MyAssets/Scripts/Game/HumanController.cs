@@ -6,13 +6,13 @@ using UnityEngine;
 
 public class HumanController : PlayerController
 {
-    protected override void OnHandCallEnabled(Player.HandCall handCalls)
+    protected override void OnHandCallEnabled(HandCall handCalls)
     {
         //If chi hand call enabled, and there are multiple chi
         //configure button to open up the options to call chi on
     }
 
-    protected override void OnHandCallRequested(Player.HandCall handCall)
+    protected override void OnHandCallRequested(HandCall handCall)
     {
         //Disable UI buttons
     }

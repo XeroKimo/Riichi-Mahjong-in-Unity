@@ -26,7 +26,7 @@ public class GameState : MonoBehaviour
     Deck m_deck;
 
     Tile m_currentlyDrawnTile;
-    Player.HandCall m_lastHandCall;
+    HandCall m_lastHandCall;
     WaitingState m_waitingState;
 
     public void OnPlayerDiscarded(DiscardedTile discardedTile)
@@ -66,12 +66,12 @@ public class GameState : MonoBehaviour
         }
     }
 
-    public void RequestHandCall(PlayerController player, Player.HandCall handCall, HandCallFunction function)
+    public void RequestHandCall(PlayerController player, HandCall handCall, HandCallFunction function)
     {
         //If the current player requests the hand call, just call the function
         if(player.playerID == m_currentPlayerID)
         {
-            Debug.Assert(handCall == Player.HandCall.Chi || handCall == Player.HandCall.Pon || handCall == Player.HandCall.Ron, "Player requested an invalid hand call");
+            Debug.Assert(handCall == HandCall.Chi || handCall == HandCall.Pon || handCall == HandCall.Ron, "Player requested an invalid hand call");
 
             HandleHandCall(new HandCallRequest(player, handCall, function));
         }
@@ -88,7 +88,7 @@ public class GameState : MonoBehaviour
             if(m_handCallRequestCount == 0)
             {
                 HandCallRequest requestToCall = m_handCallRequests[0];
-                Player.HandCall highestPriority = Player.HandCall.None;
+                HandCall highestPriority = HandCall.None;
 
                 for(int i = 1; i < m_handCallRequests.Count; i++)
                 {
@@ -114,46 +114,36 @@ public class GameState : MonoBehaviour
     private void HandleHandCall(HandCallRequest handCall)
     {
         m_waitingState = WaitingState.Discard;
+        HandCall previousHandCall = m_lastHandCall;
+        m_lastHandCall = handCall.handCall;
 
         switch(handCall.handCall)  
         {
-        case Player.HandCall.None:
-            if(m_lastHandCall == Player.HandCall.LateKan)           //If no players want to steal the late kan
+        case HandCall.None:
+            if(previousHandCall == HandCall.LateKan)           //If no players want to steal the late kan
             {
                 handCall.player.NotifyMeldCreated();                                  //Call meld created
                 m_currentlyDrawnTile = m_deck.DrawDeadTile();                   //Set the currently drawn tile to a dead tile
                 m_players[m_currentPlayerID].AddTile(m_currentlyDrawnTile);     //Add it to the callee
             }
             break;
-        case Player.HandCall.Chi:
-        case Player.HandCall.Pon:
-        case Player.HandCall.Kan:
+        case HandCall.Chi:
+        case HandCall.Pon:
+            m_currentPlayerID = handCall.player.playerID;   //Set current player to the callerID
+            handCall.function();
+            handCall.player.NotifyMeldCreated();
+            break;
+        case HandCall.Kan:
             m_currentPlayerID = handCall.player.playerID;   //Set current player to the callerID
             handCall.function();                            //Call the hand call function
 
-            break;
-        case Player.HandCall.LateKan:
-            handCall.function();                            //Call hand call function immediately
-            break;
-
-        default:
-            break;
-        }
-
-        m_lastHandCall = handCall.handCall;
-
-        switch(handCall.handCall)
-        {
-        case Player.HandCall.Chi:
-        case Player.HandCall.Pon:
-            handCall.player.NotifyMeldCreated();
-            break;
-        case Player.HandCall.Kan:
             handCall.player.NotifyMeldCreated();                  //Call meld created
             m_currentlyDrawnTile = m_deck.DrawDeadTile();   //Set the currently drawn tile to a dead tile
             handCall.player.AddTile(m_currentlyDrawnTile);  //Add it to the callee
             break;
-        case Player.HandCall.LateKan:
+        case HandCall.LateKan:
+            handCall.function();//Call hand call function immediately
+
             DiscardedTile tileToSteal = new DiscardedTile(m_currentlyDrawnTile, handCall.player.playerID);
             List<PlayerController> canStealKan = new List<PlayerController>();
             foreach(PlayerController controller in m_players)   //Check to see if players can steal the tile
@@ -180,10 +170,11 @@ public class GameState : MonoBehaviour
                 handCall.player.AddTile(m_currentlyDrawnTile);  //Add it to the callee
             }
             break;
-        case Player.HandCall.Ron:
+
+        case HandCall.Ron:
             //Calculate player hand
             break;
-        case Player.HandCall.Tsumo:
+        case HandCall.Tsumo:
             //Calculate player hand
             break;
         default:
@@ -217,8 +208,14 @@ public class GameState : MonoBehaviour
             }
         }
 
-        //Reset player hands
-        //Start the turn
+        //Resets the deck
+        m_deck.ShuffleDeck();       
+        m_deck.BreakDeck(m_currentDealerID, m_players.Count);
+
+        ResetHands();
+
+        //Make the current player's turn -1 the dealer's ID so when next turn is called, it is the dealer's turn
+        m_currentPlayerID = (m_currentDealerID == 0) ? (byte)3 : (byte)(m_currentDealerID - 1); 
 
         StartNextTurn();
     }
@@ -228,13 +225,51 @@ public class GameState : MonoBehaviour
         return winningPlayerID != m_currentDealerID;
     }
 
+    private void ResetHands()
+    {
+        List<Tile>[] hands = new List<Tile>[4];
+
+        const int tileBunch = 4;
+        const int tileBunchCount = 3;
+
+
+        //Each player takes turns drawing 4 tiles 3 times
+        for(int i = 0; i < tileBunchCount; i++)
+        {
+            for(int j = 0; j < hands.Length; j++)       
+            {
+                for(int k = 0; k < tileBunch; k++)
+                {
+                    hands[j].Add(m_deck.DrawTile());
+                }
+            }
+        }
+        
+        //Each player takes turns drawing their 13th tile
+        for(int i = 0; i < tileBunchCount; i++)
+        {
+            for(int j = 0; j < hands.Length; j++)       
+            {
+                hands[j].Add(m_deck.DrawTile());
+            }
+        }
+
+
+        //Reset each player's hand
+        for(int i = 0; i < hands.Length; i++)
+        {
+            m_players[(m_currentDealerID + i) % hands.Length].ResetHand(hands[i]);
+        }
+    }
+
+
     struct HandCallRequest
     {
         public PlayerController player;
-        public Player.HandCall handCall;
+        public HandCall handCall;
         public HandCallFunction function;
 
-        public HandCallRequest(PlayerController player, Player.HandCall handCall, HandCallFunction function)
+        public HandCallRequest(PlayerController player, HandCall handCall, HandCallFunction function)
         {
             this.player = player;
             this.handCall = handCall;

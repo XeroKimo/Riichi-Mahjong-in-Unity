@@ -5,39 +5,39 @@ using UnityEngine;
 
 //Version: 0.4
 
+[Flags]
+public enum HandCall
+{
+    None,
+    Chi = 1,
+    Pon = 2,
+    Kan = 4,
+    LateKan = 8,
+    Ron = 16,
+    Tsumo = 32
+}
+
+public struct PotentialMelds
+{
+    public List<Meld> chiMelds;
+    public Meld ponMeld;
+    public Meld kanMeld;
+
+    public void Init()
+    {
+        chiMelds = new List<Meld>();
+    }
+
+    public void Clear()
+    {
+        chiMelds.Clear();
+        ponMeld = Meld.emptyMeld;
+        kanMeld = Meld.emptyMeld;
+    }
+}
+
 public class Player
 {
-    [Flags]
-    public enum HandCall
-    {
-        None,
-        Chi = 1,
-        Pon = 2,
-        Kan = 4,
-        LateKan = 8,
-        Ron = 16,
-        Tsumo = 32
-    }
-
-    public struct PotentialMelds
-    {
-        public List<Meld> chiMelds;
-        public Meld ponMeld;
-        public Meld kanMeld;
-
-        public void Init()
-        {
-            chiMelds = new List<Meld>();
-        }
-
-        public void Clear()
-        {
-            chiMelds.Clear();
-            ponMeld = Meld.emptyMeld;
-            kanMeld = Meld.emptyMeld;
-        }
-    }
-
     public int points;
     public Hand hand; 
     public HandCall handCalls;
