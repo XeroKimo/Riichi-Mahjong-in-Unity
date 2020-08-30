@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//Version: 0.41
+
 public class HumanController : PlayerController
 {
     protected override void OnHandCallEnabled(Player.HandCall handCalls)
@@ -31,4 +33,13 @@ public class HumanController : PlayerController
         //Do nothing
     }
 
+    protected override void OnMeldCreated(Meld meld)
+    {
+        //Do nothing
+    }
+
+    public override void OnCanStealLateKan(DiscardedTile tile)
+    {
+        //Enable ron button
+    }
 }

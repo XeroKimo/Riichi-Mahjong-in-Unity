@@ -43,7 +43,7 @@ public static class MeldHelper
 
     public static bool MakeTriple(DiscardedTile type, List<Tile> tiles, out Meld createdMeld)
     {
-        return MakeTriple(type, tiles, out createdMeld, false);
+        return MakeTriple(type, tiles, out createdMeld, true);
     }    
 
     public static bool MakeQuad(Tile type, List<Tile> tiles, out Meld createdMeld)
